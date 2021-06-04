@@ -66,8 +66,8 @@ jobs:
       - name: Prepare Redmine source
         working-directory: redmine
         run: |
-          cp plugins/redmine_lightbox/test/support/database-${{ matrix.db }}.yml config/database.yml
-          cp plugins/redmine_lightbox/test/support/configuration.yml config/configuration.yml
+          cp plugins/redmine_lightbox/test/support/database.yml config/
+          cp plugins/redmine_lightbox/test/support/configuration.yml config/
 
       - name: Install Ruby dependencies
         working-directory: redmine
