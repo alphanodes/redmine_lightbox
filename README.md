@@ -1,7 +1,7 @@
 Redmine Lightbox
 ================
 
-[![Run Rubocop](https://github.com/AlphaNodes/redmine_lightbox/workflows/Run%20Rubocop/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions?query=workflow%3A%22Run+Rubocop%22) [![Run Brakeman](https://github.com/AlphaNodes/redmine_lightbox/workflows/Run%20Brakeman/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions?query=workflow%3A%22Run+Brakeman%22) [![Run Tests](https://github.com/AlphaNodes/redmine_lightbox/workflows/Tests/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions?query=workflow%3ATests)
+[![Run Rubocop](https://github.com/AlphaNodes/redmine_lightbox/workflows/Run%20Rubocop/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions/workflows/rubocop.yml) [![Run Brakeman](https://github.com/AlphaNodes/redmine_lightbox/workflows/Run%20Brakeman/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions/workflows/brakeman.yml) [![Run Tests](https://github.com/AlphaNodes/redmine_lightbox/workflows/Tests/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions/workflows/tests.yml)
 
 This plugin lets you preview image (JPG, GIF, PNG, BMP) and PDF attachments in a lightbox based on [fancybox](https://fancyapps.com/fancybox/3/).
 
@@ -27,7 +27,7 @@ Installation and Setup
 Credits
 -------
 
-This is a fork of [redmine_lightbox2](https://github.com/paginagmbh/redmine_lightbox2), which was a fork of [redmine_lightbox](https://github.com/zipme/redmine_lightbox) plugin.
+This is a fork of [redmine_lightbox2](https://github.com/paginagmbh/redmine_lightbox2), which was a fork of [redmine_lightbox](https://github.com/zipme/redmine_lightbox) plugin. Credits goes to @tofi86 and @zipme and all other distributors to these forks!
 
 License
 -------

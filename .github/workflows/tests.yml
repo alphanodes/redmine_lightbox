@@ -5,14 +5,13 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.redmine }} ${{ matrix.db }} ruby-${{ matrix.ruby }}
+    name: ${{ matrix.redmine }} ruby-${{ matrix.ruby }}
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         ruby: ['2.7', '2.6', '2.5']
         redmine: ['4.1-stable', '4.2-stable', 'master']
-        db: ['postgres', 'mysql']
         exclude:
           - ruby: '2.7'
             redmine: 4.1-stable
@@ -33,25 +32,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: 'BestPasswordEver'
-        ports:
-          # will assign a random free host port
-          - 3306/tcp
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-
     steps:
-      - name: Verify MySQL connection from host
-        run: |
-          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -pBestPasswordEver -e "SHOW DATABASES"
-        if: matrix.db == 'mysql'
-
       - name: Checkout Redmine
         uses: actions/checkout@v2
         with:
@@ -75,7 +56,6 @@ jobs:
           cmake
           libicu-dev
           libpq-dev
-          libmysqlclient-dev
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -98,7 +78,6 @@ jobs:
       - name: Run Redmine rake tasks
         env:
           RAILS_ENV: test
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         working-directory: redmine
         run: |
           bundle exec rake generate_secret_token
@@ -108,6 +87,5 @@ jobs:
       - name: Run tests
         env:
           RAILS_ENV: test
-          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         working-directory: redmine
         run: bundle exec rake redmine:plugins:test NAME=redmine_lightbox RUBYOPT="-W0"
