@@ -8,13 +8,9 @@ class FilesControllerTest < RedmineLightbox::ControllerTest
            :email_addresses,
            :issue_categories,
            :projects_trackers,
-           :roles,
-           :member_roles,
-           :members,
-           :enabled_modules,
-           :journals, :journal_details,
-           :attachments,
-           :versions
+           :roles, :member_roles, :members, :enabled_modules,
+           :journals, :journal_details, :versions,
+           :attachments
 
   def setup
     @request.session[:user_id] = 2

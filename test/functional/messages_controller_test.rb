@@ -3,8 +3,10 @@
 require File.expand_path '../../test_helper', __FILE__
 
 class MessagesControllerTest < RedmineLightbox::ControllerTest
-  fixtures :projects, :users, :email_addresses, :user_preferences, :members, :member_roles, :roles, :boards, :messages,
-           :enabled_modules, :watchers
+  fixtures :projects, :users, :email_addresses, :user_preferences, :members,
+           :member_roles, :roles, :boards, :messages,
+           :enabled_modules, :watchers,
+           :attachments
 
   def setup
     @request.session[:user_id] = 2

@@ -6,10 +6,11 @@ class WikiControllerTest < RedmineLightbox::ControllerTest
   fixtures :projects, :users, :roles, :members, :member_roles,
            :trackers, :groups_users, :projects_trackers,
            :enabled_modules, :issue_statuses, :issues,
-           :attachments,
            :enumerations, :custom_fields, :custom_values,
            :custom_fields_trackers,
-           :wikis, :wiki_pages, :wiki_contents
+           :wikis, :wiki_pages, :wiki_contents,
+           :attachments
+
   def setup
     @request.session[:user_id] = 2
   end

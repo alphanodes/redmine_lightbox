@@ -5,7 +5,8 @@ require File.expand_path '../../test_helper', __FILE__
 class DocumentsControllerTest < RedmineLightbox::ControllerTest
   fixtures :projects, :users, :email_addresses, :roles, :members, :member_roles,
            :enabled_modules, :documents, :enumerations,
-           :groups_users, :attachments, :user_preferences
+           :groups_users, :user_preferences,
+           :attachments
 
   def setup
     @request.session[:user_id] = 2

@@ -3,7 +3,9 @@
 require File.expand_path '../../test_helper', __FILE__
 
 class WelcomeControllerTest < RedmineLightbox::ControllerTest
-  fixtures :projects, :news, :users, :members, :roles, :member_roles, :enabled_modules
+  fixtures :projects, :news, :users, :members, :roles, :member_roles, :enabled_modules,
+           :attachments
+
   fixtures :dashboards, :dashboard_roles if Redmine::Plugin.installed? 'additionals'
 
   def setup

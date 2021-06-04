@@ -4,8 +4,8 @@ require File.expand_path '../../test_helper', __FILE__
 
 class NewsControllerTest < RedmineLightbox::ControllerTest
   fixtures :projects, :users, :email_addresses, :roles, :members, :member_roles,
-           :enabled_modules, :news, :comments,
-           :attachments, :user_preferences
+           :enabled_modules, :news, :comments, :user_preferences,
+           :attachments
 
   def setup
     @request.session[:user_id] = 2

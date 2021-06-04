@@ -8,15 +8,12 @@ class IssuesControllerTest < RedmineLightbox::ControllerTest
            :projects, :projects_trackers, :enabled_modules,
            :members, :member_roles,
            :issues, :issue_statuses, :issue_categories, :issue_relations,
-           :versions,
-           :trackers,
-           :workflows,
+           :versions, :trackers, :workflows,
            :custom_fields, :custom_values, :custom_fields_projects, :custom_fields_trackers,
            :time_entries,
-           :watchers,
-           :journals, :journal_details,
-           :repositories, :changesets,
-           :queries
+           :watchers, :journals, :journal_details,
+           :repositories, :changesets, :queries,
+           :attachments
 
   def setup
     @request.session[:user_id] = 2

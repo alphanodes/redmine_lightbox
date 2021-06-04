@@ -7,9 +7,9 @@ class UsersControllerTest < RedmineLightbox::ControllerTest
            :roles, :members, :member_roles,
            :issues, :issue_statuses, :issue_relations,
            :issues, :issue_statuses, :issue_categories,
-           :versions, :trackers,
+           :versions, :trackers, :enumerations,
            :projects, :projects_trackers, :enabled_modules,
-           :enumerations
+           :attachments
 
   def test_fancybox_libs_loaded
     get :show,
