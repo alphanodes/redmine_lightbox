@@ -1,25 +1,4 @@
-div.attachments table .size {
-  font-size: 0.9em;
-  color: #888;
-}
-div.attachments table td.alignrigth {
-  text-align: right;
-}
-
-div.attachments div.images {
-  border: 1px solid #CCCCCC;
-  padding: 5px;
-  margin:  10px;
-  display: inline-block;
-}
-div.attachments div.images > div {
-  margin-bottom: 10px;
-}
-div.thumbnails img {
-  max-width: 150px;
-}
-
-a.lightbox_preview img  {
+a.lightbox_preview img {
   margin: 0 4px;
   width: 18px;
 }
@@ -28,16 +7,6 @@ a.lightbox_preview img  {
   box-shadow: 0 0 50px #222;
 }
 
-/* reset auto image-orientation for Firefox and Safari
- * due to a possible bug in the fancybox library
- * https://github.com/paginagmbh/redmine_lightbox2/issues/67
- */
-div.attachments div.images img,
-img.fancybox-image {
-  image-orientation: initial;
-}
-
-
 /* move prev/next buttons outside
  * fixes issue #5
  *
@@ -45,19 +14,13 @@ img.fancybox-image {
  * - http://fancyapps.com/fancybox/#useful
  * - http://jsfiddle.net/Xh3B2/
  */
-.fancybox-nav {
-  width: 70px;
-}
+.fancybox-nav { width: 70px; }
+
 .fancybox-nav span {
   visibility: visible;
   opacity: 0.3;
 }
-.fancybox-nav:hover span {
-  opacity: 1;
-}
-.fancybox-next {
-  right: -70px;
-}
-.fancybox-prev {
-  left: -70px;
-}
+
+.fancybox-nav:hover span { opacity: 1; }
+.fancybox-next { right: -70px; }
+.fancybox-prev { left: -70px; }

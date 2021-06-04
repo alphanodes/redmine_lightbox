@@ -1,47 +1,35 @@
-Redmine Lightbox 2
-==================
+Redmine Lightbox
+================
 
-This plugin lets you preview image (JPG, GIF, PNG, BMP) and PDF attachments in a lightbox.
+[![Run Rubocop](https://github.com/AlphaNodes/redmine_lightbox/workflows/Run%20Rubocop/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions?query=workflow%3A%22Run+Rubocop%22) [![Run Brakeman](https://github.com/AlphaNodes/redmine_lightbox/workflows/Run%20Brakeman/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions?query=workflow%3A%22Run+Brakeman%22) [![Run Tests](https://github.com/AlphaNodes/redmine_lightbox/workflows/Tests/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions?query=workflow%3ATests)
 
-This is a fork of zipme's [redmine_lightbox](https://github.com/zipme/redmine_lightbox) plugin.
+This plugin lets you preview image (JPG, GIF, PNG, BMP) and PDF attachments in a lightbox based on [fancybox](https://fancyapps.com/fancybox/3/).
 
-*This plugin is listed in the [Redmine plugin directory](http://www.redmine.org/plugins/redmine_lightbox2)*
+If you click on a thumbnail, lightbox view opens. You have to enable thumbnails in your Redmine settings. If you do not enable thumbnails, you cannot use lightbox view.
 
+Requirements
+------------
 
-Compatibility
--------------
-
-**The latest version on `master` branch supports Redmine 4.0 only!**
-
-A Redmine 3.4.x compatible version can be found on the [redmine-3.4](https://github.com/paginagmbh/redmine_lightbox2/tree/redmine-3.4) branch.
-
-A Redmine 3.3.x compatible version can be found on the [redmine-3.3](https://github.com/paginagmbh/redmine_lightbox2/tree/redmine-3.3) branch.
-
-A Redmine 3.0, 3.1, 3.2 compatible version can be found on the [redmine-3.0-3.2](https://github.com/paginagmbh/redmine_lightbox2/tree/redmine-3.0-3.2) branch.
-
-A Redmine 2.6.x compatible version can be found on the [redmine-2.6](https://github.com/paginagmbh/redmine_lightbox2/tree/redmine-2.6) branch.
-
-A Redmine 2.0 - 2.5.x compatible version can be found on the [redmine-2.5-and-lower](https://github.com/paginagmbh/redmine_lightbox2/tree/redmine-2.5-and-lower) branch.
-
-For older version please download [this package](https://github.com/paginagmbh/redmine_lightbox2/zipball/7cd1d66d54f267015dcd0b0d0eadab251918de1d)
-
+- Redmine 4.1 or higher
+- Ruby 2.5 or higher
 
 Installation and Setup
 ----------------------
 
-* Clone or [download](https://github.com/paginagmbh/redmine_lightbox2/releases) this repo into your **redmine_root/plugins/** folder
-```
-$ git clone https://github.com/paginagmbh/redmine_lightbox2.git
-```
-* If you downloaded a tarball / zip from master branch, make sure you rename the extracted folder to `redmine_lightbox2`
-* You have to run the plugin rake task to provide the assets (from the Redmine root directory):
-```
-$ rake redmine:plugins:migrate RAILS_ENV=production
-```
-* Restart Redmine
+- Clone this repo into your **redmine_root/plugins/** folder
 
+  ```shell
+  git clone https://github.com/alphanodes/redmine_lightbox.git
+  ```
+
+- Restart Redmine
+
+Credits
+-------
+
+This is a fork of [redmine_lightbox2](https://github.com/paginagmbh/redmine_lightbox2), which was a fork of [redmine_lightbox](https://github.com/zipme/redmine_lightbox) plugin.
 
 License
 -------
 
-*redmine_lightbox2* plugin is developed under the [MIT License](LICENSE).
+*redmine_lightbox* plugin is developed under the [MIT License](LICENSE).

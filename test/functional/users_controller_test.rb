@@ -1,0 +1,21 @@
+# frozen_string_literal: true
+
+require File.expand_path '../../test_helper', __FILE__
+
+class UsersControllerTest < RedmineLightbox::ControllerTest
+  fixtures :users, :groups_users, :email_addresses, :user_preferences,
+           :roles, :members, :member_roles,
+           :issues, :issue_statuses, :issue_relations,
+           :issues, :issue_statuses, :issue_categories,
+           :versions, :trackers,
+           :projects, :projects_trackers, :enabled_modules,
+           :enumerations
+
+  def test_fancybox_libs_loaded
+    get :show,
+        params: { id: 1 }
+
+    assert_response :success
+    assert_fancybox_libs
+  end
+end

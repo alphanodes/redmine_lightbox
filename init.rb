@@ -1,36 +1,15 @@
-require 'redmine'
+# frozen_string_literal: true
 
-require_dependency 'patches/attachments_patch'
-require_dependency 'hooks/view_layouts_base_html_head_hook'
-
-Redmine::Plugin.register :redmine_lightbox2 do
-  name 'Redmine Lightbox 2'
-  author 'Tobias Fischer'
+Redmine::Plugin.register :redmine_lightbox do
+  name 'Redmine Lightbox'
+  author 'AlphaNodes GmbH'
   description 'This plugin lets you preview image and pdf attachments in a lightbox.'
-  version '0.5.1'
-  url 'https://github.com/paginagmbh/redmine_lightbox2'
-  author_url 'https://github.com/tofi86'
-  requires_redmine :version_or_higher => '4.0'
+  version RedmineLightbox::VERSION
+  url 'https://github.com/alphanodes/redmine_lightbox'
+  author_url 'https://alphanodes.com'
+  requires_redmine version_or_higher: '4.1'
 end
 
-
-
-# Patches to the Redmine core.
-require 'dispatcher' unless Rails::VERSION::MAJOR >= 3
-
-if Rails::VERSION::MAJOR >= 5
-  ActiveSupport::Reloader.to_prepare do
-    require_dependency 'attachments_controller'
-    AttachmentsController.send(:include, RedmineLightbox2::AttachmentsPatch)
-  end
-elsif Rails::VERSION::MAJOR >= 3
-  ActionDispatch::Callbacks.to_prepare do
-    require_dependency 'attachments_controller'
-    AttachmentsController.send(:include, RedmineLightbox2::AttachmentsPatch)
-  end
-else
-  Dispatcher.to_prepare do
-    require_dependency 'attachments_controller'
-    AttachmentsController.send(:include, RedmineLightbox2::AttachmentsPatch)
-  end
+Rails.configuration.to_prepare do
+  RedmineLightbox.setup
 end
