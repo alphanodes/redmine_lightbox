@@ -5,8 +5,6 @@ Redmine Lightbox
 
 This plugin lets you preview image (JPG, GIF, PNG, BMP) and PDF attachments in a lightbox based on [fancybox](https://fancyapps.com/fancybox/3/).
 
-If you click on a thumbnail, lightbox view opens. You have to enable thumbnails in your Redmine settings. If you do not enable thumbnails, you cannot use lightbox view.
-
 Requirements
 ------------
 
@@ -24,6 +22,11 @@ Installation and Setup
 
 - Restart Redmine
 
+Contribution and usage
+----------------------
+
+If you use our fork and have some improvements for it, please create a PR (we can discuss your changes in it).
+
 Credits
 -------
 
@@ -32,4 +35,4 @@ This is a fork of [redmine_lightbox2](https://github.com/paginagmbh/redmine_ligh
 License
 -------
 
-*redmine_lightbox* plugin is developed under the [MIT License](LICENSE).
+*redmine_lightbox* plugin is developed under the [MIT License](LICENSE.md).
