@@ -14,7 +14,7 @@ $(function() {
   });
 
   // add rel attribute to attachments of the same journal entry
-  $('div.journal ul.details a').each(function() {
+  $('div.journal ul.details a.lightbox').each(function() {
     var relgroup = 'attachments-' + $(this).closest('div.journal').attr('id');
     var title = $(this).attr('title');
     $(this)
