@@ -23,6 +23,21 @@ $(function() {
       .attr('data-caption', title);
   });
 
+  // Support for contacts
+  $('div.contact.details td.avatar a').each(function() {
+    var href = $(this).attr('href');
+    var filename = $(this).text();
+    var title = $(this).attr('title');
+    // only apply thumbnail class to image and pdf links
+    if(href.match(extensionRegexAll)) {
+      $(this)
+        .attr('href', href.replace(/\/attachments\/(\d+)/g,'/attachments/download/$1/' + filename))
+        .addClass('lightbox')
+        .attr('data-type', 'image')
+        .attr('data-caption', title ? title : null);
+    }
+  });
+
   // Support for files module
   $('table.list.files td.filename a').each(function() {
     var href = $(this).attr('href');
