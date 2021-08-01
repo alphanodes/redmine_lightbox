@@ -24,7 +24,7 @@ $(function() {
   });
 
   // Support for contacts
-  $('div.contact.details td.avatar a').each(function() {
+  $('div.contact.details table.subject_header td.avatar a').each(function() {
     var href = $(this).attr('href');
     var filename = $(this).text();
     var title = $(this).attr('title');
