@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-require 'redmine_lightbox/version'
-
 module RedmineLightbox
+  VERSION = '1.0.0'
   FANCYBOX_VERSION = '3.5.7'
 
   class << self
@@ -13,7 +12,7 @@ module RedmineLightbox
       end
 
       # Hooks
-      require_dependency 'redmine_lightbox/hooks'
+      RedmineLightbox::Hooks
     end
 
     # list of all controllers for lightbox support
