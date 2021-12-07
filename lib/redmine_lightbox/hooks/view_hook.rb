@@ -2,7 +2,7 @@
 
 module RedmineLightbox
   module Hooks
-    class RedmineLightboxHookListener < Redmine::Hook::ViewListener
+    class ViewHook < Redmine::Hook::ViewListener
       def view_layouts_base_html_head(context = {})
         return unless RedmineLightbox.lightbox_controllers.include? context[:controller].class.to_s
 

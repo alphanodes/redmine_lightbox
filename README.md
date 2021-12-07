@@ -17,7 +17,9 @@ Installation and Setup
 - Clone this repo into your **redmine_root/plugins/** folder
 
   ```shell
-  git clone https://github.com/alphanodes/redmine_lightbox.git
+  cd redmine
+  git clone https://github.com/alphanodes/redmine_lightbox.git plugins/redmine_lightbox
+  bundle install
   ```
 
 - Restart Redmine

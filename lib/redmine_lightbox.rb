@@ -4,23 +4,25 @@ module RedmineLightbox
   VERSION = '1.0.0'
   FANCYBOX_VERSION = '3.5.7'
 
+  include RedminePluginKit::PluginBase
+
   class << self
-    def setup
-      # load helper for supported controllers
-      lightbox_controllers.each do |lightbox_controller|
-        lightbox_controller.constantize.send :helper, LightboxHelper
-      end
-
-      # Hooks
-      RedmineLightbox::Hooks
-    end
-
     # list of all controllers for lightbox support
     def lightbox_controllers
       @lightbox_controllers ||= lightbox_fixed_controllers + lightbox_plugins_controllers
     end
 
     private
+
+    def setup
+      # load helper for supported controllers
+      lightbox_controllers.each do |lightbox_controller|
+        lightbox_controller.constantize.send :helper, LightboxHelper
+      end
+
+      # Load view hooks
+      loader.load_view_hooks!
+    end
 
     def lightbox_fixed_controllers
       %w[IssuesController

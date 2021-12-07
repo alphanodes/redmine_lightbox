@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+loader = RedminePluginKit::Loader.new plugin_id: 'redmine_lightbox'
+
 Redmine::Plugin.register :redmine_lightbox do
   name 'Redmine Lightbox'
   author 'AlphaNodes GmbH'
@@ -10,8 +12,5 @@ Redmine::Plugin.register :redmine_lightbox do
   requires_redmine version_or_higher: '4.1'
 end
 
-if Rails.version > '6.0'
-  ActiveSupport.on_load(:active_record) { RedmineLightbox.setup }
-else
-  Rails.configuration.to_prepare { RedmineLightbox.setup }
-end
+RedminePluginKit::Loader.persisting { loader.load_model_hooks! }
+RedminePluginKit::Loader.to_prepare { RedmineLightbox.setup! } if Rails.version < '6.0'
