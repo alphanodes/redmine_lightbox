@@ -10,15 +10,18 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
+    - name: Setup gems
+      run: |
+        cp test/support/gemfile.rb Gemfile
+
     - name: Setup Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.6
         bundler-cache: true
 
-    - name: Setup gems
+    - name: Run bundler
       run: |
-        cp test/support/gemfile.rb Gemfile
         bundle install --jobs 4 --retry 3
 
     - name: Run RuboCop
