@@ -3,6 +3,19 @@ $(function() {
   var extensionRegexImage = /\.(png|jpe?g|gif|bmp)$/i;
   var extensionRegexAll = /\.(png|jpe?g|gif|bmp|pdf)$/i;
 
+  // used be thumbnail macro
+  $('div.wiki a.thumbnail').each(function() {
+    var relgroup = 'thumbnail-macro';
+    var href = $(this).attr('href');
+    var filename = $(this).text();
+    var title = $(this).attr('title');
+    $(this)
+      .attr('href', href.replace(/\/attachments\/(\d+)/g,'/attachments/download/$1/' + filename))
+      .attr('rel', relgroup)
+      .attr('data-fancybox', relgroup)
+      .attr('data-caption', title);
+  });
+
   // add rel attribute to thumbnails of the same journal entry
   $('div.journal div.thumbnails a').each(function() {
     var relgroup = 'thumbnails-' + $(this).closest('div.journal').attr('id');
