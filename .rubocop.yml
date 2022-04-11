@@ -1,14 +1,27 @@
 require:
   - rubocop-performance
   - rubocop-rails
-
-Rails:
-  Enabled: true
+  - rubocop-minitest
 
 AllCops:
   TargetRubyVersion: 2.6
   TargetRailsVersion: 5.2
   NewCops: enable
+
+Rails:
+  Enabled: true
+
+Minitest/MultipleAssertions:
+  Max: 5
+  Enabled: true
+
+Minitest/AssertPredicate:
+  Enabled: false
+
+Minitest/TestMethodName:
+  Enabled: true
+  Exclude:
+    - 'test/test_helper.rb'
 
 Metrics/AbcSize:
   Enabled: false
