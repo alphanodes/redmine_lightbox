@@ -44,7 +44,7 @@ $(function() {
     // only apply thumbnail class to image and pdf links
     if(href.match(extensionRegexAll)) {
       $(this)
-        .attr('href', href.replace(/\/attachments\/(\d+)/g,'/attachments/download/$1/' + filename))
+        .attr('href', href.replace(/\/attachments\/(\d+)/g,'/attachments/download/$1' + filename))
         .addClass('lightbox')
         .attr('data-type', 'image')
         .attr('data-caption', title ? title : null);
