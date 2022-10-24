@@ -10,14 +10,12 @@ jobs:
 
     strategy:
       matrix:
-        ruby: ['2.7', '2.6', '3.0']
-        redmine: ['4.1-stable', '4.2-stable', 'master']
+        ruby: ['2.7', '3.0', '3.1']
+        redmine: ['4.2-stable', '5.0-stable', 'master']
         exclude:
-          - ruby: '2.7'
-            redmine: 4.1-stable
           - ruby: '3.0'
-            redmine: 4.1-stable
-          - ruby: '3.0'
+            redmine: 4.2-stable
+          - ruby: '3.1'
             redmine: 4.2-stable
       fail-fast: false
 
@@ -38,14 +36,14 @@ jobs:
 
     steps:
       - name: Checkout Redmine
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: redmine/redmine
           ref: ${{ matrix.redmine }}
           path: redmine
 
       - name: Checkout redmine_lightbox
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: AlphaNodes/redmine_lightbox
           path: redmine/plugins/redmine_lightbox

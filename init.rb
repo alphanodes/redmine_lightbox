@@ -9,7 +9,7 @@ Redmine::Plugin.register :redmine_lightbox do
   version RedmineLightbox::VERSION
   url 'https://github.com/alphanodes/redmine_lightbox'
   author_url 'https://alphanodes.com'
-  requires_redmine version_or_higher: '4.1'
+  requires_redmine version_or_higher: '4.2'
 end
 
 RedminePluginKit::Loader.persisting { loader.load_model_hooks! }
