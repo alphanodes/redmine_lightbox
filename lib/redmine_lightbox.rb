@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RedmineLightbox
-  VERSION = '1.0.1'
+  VERSION = '1.0.2'
   FANCYBOX_VERSION = '3.5.7'
 
   include RedminePluginKit::PluginBase
