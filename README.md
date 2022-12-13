@@ -37,4 +37,4 @@ This is a fork of [redmine_lightbox2](https://github.com/paginagmbh/redmine_ligh
 License
 -------
 
-*redmine_lightbox* plugin is developed under the [MIT License](LICENSE.md).
+*redmine_lightbox* plugin is developed under the [MIT License](LICENSE).
