@@ -1,18 +1,17 @@
-name: Run Brakeman
+name: Run Linters
 on:
   push:
   pull_request:
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
 
     - name: Install package dependencies
-      run: >
+      run: |
         sudo apt-get install --yes --quiet pandoc
 
     - name: Setup gems
@@ -29,6 +28,23 @@ jobs:
       run: |
         bundle install --jobs 4 --retry 3
 
+    - name: Run RuboCop
+      run: |
+        bundle exec rubocop -S
+
     - name: Run Brakeman
       run: |
         bundle exec brakeman -5
+
+    - name: Setup node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+
+    - run: yarn install
+
+    - name: Run Stylelint
+      run: node_modules/.bin/stylelint assets/stylesheets/
+
+    - name: Run ESLint
+      run: node_modules/.bin/eslint assets/javascripts/

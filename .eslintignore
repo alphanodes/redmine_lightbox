@@ -1,0 +1,2 @@
+# eslint ignore file
+assets/javascripts/*.min.js

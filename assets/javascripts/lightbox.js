@@ -164,7 +164,7 @@ $(function() {
 
   // Add Fancybox to image links
   $('div.attachments a.lightbox')
-    .add('div.attachments a.lightbox_preview')
+    .add('div.attachments a.lightbox-preview')
     .add('table.list.files a.icon-magnifier:not([href$=".pdf"])')
     .add($('div.journal ul.details a:not(.icon-download)').filter(function(index,elem) { return $(elem).attr('href').match(extensionRegexImage); }) )
     .add('div.journal div.thumbnails a')
