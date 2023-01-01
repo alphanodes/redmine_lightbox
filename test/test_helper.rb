@@ -8,7 +8,7 @@ if ENV['COVERAGE']
   end
 end
 
-require File.expand_path "#{File.dirname __FILE__}/../../../test/test_helper"
+require_relative '../../../test/test_helper'
 
 module RedmineLightbox
   module PluginFixturesLoader
