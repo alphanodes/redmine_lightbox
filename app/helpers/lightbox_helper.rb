@@ -40,7 +40,7 @@ module LightboxHelper
     link_to image_tag(thumbnail_path(attachment),
                       srcset: "#{thumbnail_path attachment, size: thumbnail_size * 2} 2x",
                       style: "max-width: #{thumbnail_size}px; max-height: #{thumbnail_size}px;"),
-            download_named_attachment_url(attachment, filename: attachment.filename),
+            download_named_attachment_path(attachment, filename: attachment.filename),
             options
   end
 
