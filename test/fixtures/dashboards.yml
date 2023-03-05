@@ -2,6 +2,7 @@ system_default_welcome:
   name: Global default dashboard
   dashboard_type: <%= DashboardContentWelcome::TYPE_NAME %>
   system_default: true
+  locked: true
   enable_sidebar: false
   author_id: 1
   visibility: 2
@@ -35,6 +36,7 @@ system_default_project:
   name: Project default dashboard
   dashboard_type: <%= DashboardContentProject::TYPE_NAME %>
   system_default: true
+  locked: true
   enable_sidebar: true
   project_id:
   author_id: 1
