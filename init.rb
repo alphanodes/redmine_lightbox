@@ -3,7 +3,7 @@
 loader = RedminePluginKit::Loader.new plugin_id: 'redmine_lightbox'
 
 Redmine::Plugin.register :redmine_lightbox do
-  name 'Redmine Lightbox'
+  name 'Lightbox'
   author 'AlphaNodes GmbH'
   description 'This plugin lets you preview image and pdf attachments in a lightbox.'
   version RedmineLightbox::VERSION
