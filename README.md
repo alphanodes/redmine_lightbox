@@ -9,7 +9,7 @@ Requirements
 ------------
 
 - Redmine 5.0 or higher
-- Ruby 2.7 or higher
+- Ruby 3.0 or higher
 
 Installation and Setup
 ----------------------
