@@ -22,17 +22,14 @@ module RedmineLightbox
   end
 
   class ControllerTest < Redmine::ControllerTest
-    FANCYBOX_JS = "/plugin_assets/redmine_lightbox/javascripts/jquery.fancybox-#{RedmineLightbox::FANCYBOX_VERSION}.min.js"
-    FANCYBOX_CSS = "/plugin_assets/redmine_lightbox/stylesheets/jquery.fancybox-#{RedmineLightbox::FANCYBOX_VERSION}.min.css"
-
     def assert_fancybox_libs
-      assert_select 'link[rel=stylesheet][href^=?]', FANCYBOX_CSS, count: 1
-      assert_select 'script[src^=?]', FANCYBOX_JS, count: 1
+      assert_select "link:match('href',?)", %r{/jquery.fancybox}, count: 1
+      assert_select "script:match('src',?)", %r{/jquery.fancybox.*\.js}, count: 1
     end
 
     def assert_not_fancybox_libs
-      assert_select 'link[rel=stylesheet][href^=?]', FANCYBOX_CSS, count: 0
-      assert_select 'script[src^=?]', FANCYBOX_JS, count: 0
+      assert_select "link:match('href',?)", %r{/jquery.fancybox}, count: 0
+      assert_select "script:match('src',?)", %r{/jquery.fancybox.*\.js}, count: 0
     end
 
     extend PluginFixturesLoader
