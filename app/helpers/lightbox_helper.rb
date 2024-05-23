@@ -22,7 +22,7 @@ module LightboxHelper
                          caption: caption }
     end
 
-    super attachment, **options
+    super
   end
 
   def thumbnail_tag(attachment)
