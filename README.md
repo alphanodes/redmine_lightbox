@@ -19,6 +19,7 @@ Installation and Setup
   ```shell
   cd redmine
   git clone https://github.com/alphanodes/redmine_lightbox.git plugins/redmine_lightbox
+  bundle config set --local without 'development test'
   bundle install
   ```
 
