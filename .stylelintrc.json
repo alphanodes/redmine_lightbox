@@ -1,6 +1,11 @@
 {
   "extends": "stylelint-config-standard",
   "rules": {
-    "string-quotes": "single"
+    "string-quotes": "single",
+    "declaration-property-unit-disallowed-list": {
+      "font-size": [
+        "px"
+      ]
+    }
   }
 }
