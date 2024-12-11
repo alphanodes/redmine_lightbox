@@ -2,6 +2,7 @@
   "extends": "stylelint-config-standard",
   "rules": {
     "string-quotes": "single",
+    "selector-nested-pattern": "false",
     "declaration-property-unit-disallowed-list": {
       "font-size": [
         "px"
