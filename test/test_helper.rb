@@ -23,13 +23,13 @@ module RedmineLightbox
 
   class ControllerTest < Redmine::ControllerTest
     def assert_fancybox_libs
-      assert_select "link:match('href',?)", %r{/jquery.fancybox}, count: 1
-      assert_select "script:match('src',?)", %r{/jquery.fancybox.*\.js}, count: 1
+      assert_select "link:match('href',?)", %r{/glightbox}, count: 1
+      assert_select "script:match('src',?)", %r{/glightbox.*\.js}, count: 1
     end
 
     def assert_not_fancybox_libs
-      assert_select "link:match('href',?)", %r{/jquery.fancybox}, count: 0
-      assert_select "script:match('src',?)", %r{/jquery.fancybox.*\.js}, count: 0
+      assert_select "link:match('href',?)", %r{/glightbox}, count: 0
+      assert_select "script:match('src',?)", %r{/glightbox.*\.js}, count: 0
     end
 
     extend PluginFixturesLoader

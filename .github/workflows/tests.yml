@@ -10,16 +10,9 @@ jobs:
 
     strategy:
       matrix:
-        ruby: ['3.1', '3.2', '3.3', '3.4']
-        redmine: ['6.0-stable', '6.1-stable', 'master']
+        ruby: ['3.2', '3.3', '3.4']
+        redmine: ['6.1-stable', 'master']
         db: ['postgres', 'mysql']
-        exclude:
-          - ruby: '3.1'
-            redmine: 6.1-stable
-          - ruby: '3.1'
-            redmine: master
-          - ruby: '3.4'
-            redmine: 6.0-stable
       fail-fast: false
 
     services:
@@ -61,6 +54,16 @@ jobs:
           cmake
           libicu-dev
           libpq-dev
+
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Verify Chrome installation
+        run: |
+          chrome --version
+          which chrome
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1

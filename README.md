@@ -3,13 +3,13 @@ Redmine Lightbox
 
 [![Run Linters](https://github.com/AlphaNodes/redmine_lightbox/workflows/Run%20Linters/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions/workflows/linters.yml) [![Run Tests](https://github.com/AlphaNodes/redmine_lightbox/workflows/Tests/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions/workflows/tests.yml)
 
-This plugin lets you preview image (JPG, GIF, PNG, BMP) and PDF attachments in a lightbox based on [fancybox](https://fancyapps.com/fancybox/3/).
+This plugin lets you preview image (JPG, GIF, PNG, BMP) and PDF attachments in a lightbox based on [GLightbox](https://github.com/biati-digital/glightbox).
 
 Requirements
 ------------
 
-- Redmine 5.0 or higher
-- Ruby 3.0 or higher
+- Redmine 6.1 or higher
+- Ruby 3.2 or higher
 
 Installation and Setup
 ----------------------

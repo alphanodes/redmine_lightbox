@@ -9,8 +9,7 @@ Redmine::Plugin.register :redmine_lightbox do
   version RedmineLightbox::VERSION
   url 'https://github.com/alphanodes/redmine_lightbox'
   author_url 'https://alphanodes.com'
-  requires_redmine version_or_higher: '4.2'
+  requires_redmine version_or_higher: '6.1'
 end
 
 RedminePluginKit::Loader.persisting { loader.load_model_hooks! }
-RedminePluginKit::Loader.to_prepare { RedmineLightbox.setup! } if Rails.version < '6.0'

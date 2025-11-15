@@ -1,198 +1,216 @@
-$(function() {
-  // the file extension regex matching on supported image and pdf types
-  var extensionRegexImage = /\.(png|jpe?g|gif|bmp)$/i;
-  var extensionRegexAll = /\.(png|jpe?g|gif|bmp|pdf)$/i;
+/* global GLightbox, Map */
 
-  // used be thumbnail macro
-  $('div.wiki a.thumbnail').each(function() {
-    var relgroup = 'thumbnail-macro';
-    var href = $(this).attr('href');
-    var filename = $(this).text();
-    var title = $(this).attr('title');
-    $(this)
-      .attr('href', href.replace(/\/attachments\/(\d+)/g,'/attachments/download/$1/' + filename))
-      .attr('rel', relgroup)
-      .attr('data-fancybox', relgroup)
-      .attr('data-caption', title);
-  });
+(function() {
+  'use strict';
 
-  // add rel attribute to thumbnails of the same journal entry
-  $('div.journal div.thumbnails a').each(function() {
-    var relgroup = 'thumbnails-' + $(this).closest('div.journal').attr('id');
-    var title = $(this).attr('title');
-    $(this)
-      .attr('rel', relgroup)
-      .attr('data-fancybox', relgroup)
-      .attr('data-caption', title);
-  });
+  // File extension regex matching on supported image types
+  const extensionRegexImage = /\.(png|jpe?g|gif|bmp)$/i;
 
-  // add rel attribute to attachments of the same journal entry
-  $('div.journal ul.details a.lightbox').each(function() {
-    var relgroup = 'attachments-' + $(this).closest('div.journal').attr('id');
-    var title = $(this).attr('title');
-    $(this)
-      .attr('rel', relgroup)
-      .attr('data-fancybox', relgroup)
-      .attr('data-caption', title);
-  });
+  // Store lightbox instance globally to destroy and recreate after AJAX
+  let lightboxInstance = null;
 
-  // Support for contacts
-  $('div.contact.details table.subject_header td.avatar a').each(function() {
-    var href = $(this).attr('href');
-    var filename = $(this).text();
-    var title = $(this).attr('title');
-    // only apply thumbnail class to image and pdf links
-    if(href.match(extensionRegexAll)) {
-      $(this)
-        .attr('href', href.replace(/\/attachments\/(\d+)/g,'/attachments/download/$1' + filename))
-        .addClass('lightbox')
-        .attr('data-type', 'image')
-        .attr('data-caption', title ? title : null);
-    }
-  });
+  function initializeLightbox() {
+    // Collect all lightbox links (images and PDFs) in DOM order for unified slideshow
+    const allLightboxLinks = [];
+    const seenHrefs = new Map(); // For deduplication
 
-  // Support for files module
-  $('table.list.files td.filename a').each(function() {
-    var href = $(this).attr('href');
-    var filename = $(this).text();
-    var title = $(this).attr('title');
-    // Also support PDF preview in lightbox
-    var isPdf = filename.match(/\.pdf$/i);
-    // only apply thumbnail class to image and pdf links
-    if(filename.match(extensionRegexAll)) {
-      $(this)
-        .attr('href', href.replace(/\/attachments\/(\d+)/g,'/attachments/download/$1/' + filename))
-        .addClass(isPdf ? 'lightbox pdf' : 'lightbox')
-        .attr('data-type', isPdf ? 'iframe' : 'image')
-        .attr('data-caption', title ? filename + ' - ' + title : filename);
-    }
-  });
-
-  // Support for issue list attachment column
-  $('table.list.issues td.attachments a').each(function() {
-    var filename = $(this).text();
-    // group images to one issue
-    if(filename.match(extensionRegexAll)) {
-      if (!$(this).hasClass('icon-download')) {
-        $(this).attr('data-fancybox', 'issue-list-attachments-' + $(this).closest('tr').attr('id'));
+    // Helper to add link if not duplicate
+    function addLightboxLink(link) {
+      const href = link.href;
+      if (!seenHrefs.has(href)) {
+        seenHrefs.set(href, true);
+        allLightboxLinks.push(link);
       }
     }
-  });
 
+    // Collect image links
+    const imageSelectors = [
+      'div.attachments a.lightbox:not(.pdf)',
+      'div.attachments a.lightbox-preview',
+      'table.list.files a.icon-magnifier:not([href$=".pdf"])',
+      '.controller-dmsf #browser a.lightbox',
+      'table.list.files td.filename a.lightbox:not(.pdf)'
+    ];
 
-  // DMSF support
-  var dmsf_link_selector = 'a[data-downloadurl][href^="/dmsf/files/"][href$="/view"]';
-
-  // #40 ... add class="thumbnail" to DMSF macro thumbnails on wiki pages
-  $('div.wiki ' + dmsf_link_selector).each(function() {
-    var filename = $(this).attr('data-downloadurl').split(':')[1];
-    // Also support PDF preview in lightbox
-    var isPdf = filename.match(/\.pdf$/i);
-    // only apply thumbnail class to image and pdf links
-    if(filename.match(extensionRegexAll)) {
-      $(this)
-        .addClass('thumbnail')
-        .attr('data-type', isPdf ? 'iframe' : 'image')
-        .attr('title', $(this).text())
-        .attr('data-caption', filename)
-        .removeAttr('target')
-        .removeAttr('data-downloadurl');
-    }
-  });
-
-  // #63 ... add class="lightbox" to DMSF image links in DMS browser
-  $('.controller-dmsf #browser .dmsf_title ' + dmsf_link_selector).each(function() {
-    var filename = $(this).attr('data-downloadurl').split(':')[1];
-    // only apply thumbnail class to image and pdf links
-    if(filename.match(extensionRegexImage)) {
-      $(this)
-        .addClass('lightbox')
-        .attr('data-type', 'image')
-        .attr('title', $(this).text())
-        .attr('data-caption', filename)
-        .attr('rel', 'dmsf-browser')
-        .attr('data-fancybox', 'dmsf-browser')
-        .removeAttr('target')
-        .removeAttr('data-downloadurl');
-    }
-  });
-
-  // DMSF support in issues: add class="lightbox" to DMSF thumbnails and preview links
-  $('div.attachments.dmsf_parent_container a[href^="/dmsf/files/"][href$="/view"]').each(function() {
-    // extract filename from attribute 'data-downloadurl' from closest element with the same 'href'
-    var href = $(this).attr('href');
-    var ddUrl = $(this).attr('data-downloadurl');
-    var dmsfId = href.replace(/.*\/files\/(\d+)\/view/g, '$1');
-    var filename = '';
-    var title = '';
-
-    // For some browsers, `attr` is undefined; for others, `attr` is false. Check for both.
-    // https://css-tricks.com/snippets/jquery/make-an-jquery-hasattr/
-    if (typeof ddUrl !== typeof undefined && ddUrl !== false) {
-      // read local attribute if present (on DMSF textlinks)
-      filename = ddUrl.split(':')[1];
-      title = $(this).text();
-    } else {
-      // or read from corresponding DMSF textlink if no local data-downloadurl is present
-      var correspondingElem = $('div.attachments.dmsf_parent_container > p > a[href="' + href + '"].dmsf-icon-file').first();
-      filename = correspondingElem.attr('data-downloadurl').split(':')[1];
-      title = correspondingElem.text();
-    }
-
-    // create 3 fancybox 'rel' groups to avoid image duplicates in slideshow
-    var relgroup = '';
-    if($(this).closest('div.thumbnails').length) {
-      relgroup = 'thumbnails';
-    } else if($(this).hasClass('icon-only')) {
-      relgroup = 'icon';
-    } else if($(this).hasClass('icon')) {
-      relgroup = 'imagelink';
-    }
-    // Also support PDF preview in lightbox
-    var isPdf = filename.match(/\.pdf$/i);
-    // only apply thumbnail class to image and pdf links
-    if(filename.match(extensionRegexAll)) {
-      $(this)
-        .addClass('lightbox')
-        .attr('data-type', isPdf ? 'iframe' : 'image')
-        .attr('title', '[' + dmsfId + '] ' + title)
-        .attr('data-caption', '[' + dmsfId + '] ' + title)
-        .attr('data-fancybox', 'dmsf-' + relgroup);
-      // do not remove 'data-downloadurl' here otherwise the filename extraction crashes for following dmsf thumbnails
-    }
-  });
-
-  // Add Fancybox to image links
-  $('div.attachments a.lightbox')
-    .add('div.attachments a.lightbox-preview')
-    .add('table.list.files a.icon-magnifier:not([href$=".pdf"])')
-    .add($('div.journal ul.details a:not(.icon-download)').filter(function(index,elem) { return $(elem).attr('href').match(extensionRegexImage); }) )
-    .add('div.journal div.thumbnails a')
-    .add('div.wiki a.thumbnail')
-    .add('.controller-dmsf #browser a.lightbox')
-    .add('.avatar a')
-    .add('table.list.files td.filename a.lightbox')
-    .fancybox({
-      animationEffect    : 'zoom',
-      animationDuration  : 200,
-      transitionEffect   : 'fade',
-      transitionDuration : 200,
-      buttons: ['zoom', 'fullScreen', 'download', 'thumbs', 'close']
+    imageSelectors.forEach(function(selector) {
+      document.querySelectorAll(selector).forEach(addLightboxLink);
     });
 
-  // Add Fancybox to PDF links
-  $('div.attachments a.pdf')
-    .add('table.list.files td.filename a.lightbox.pdf')
-    .add('table.list.files a.icon-magnifier[href$=".pdf"]')
-    .add( $('div.journal ul.details a:not(.icon-download)').filter(function(index,elem) { return $(elem).attr('href').match(/\.pdf$/i); }) )
-    .add( $('div.journal div.thumbnails a').filter(function(index,elem) { return $(elem).attr('href').match(/\.pdf$/i); }) )
-    .fancybox({
-      animationEffect    : 'zoom',
-      animationDuration  : 200,
-      transitionEffect   : 'fade',
-      transitionDuration : 200,
-      type               : 'iframe',
-      iframe : { preload: true },
-      buttons: ['fullScreen', 'download', 'close' ]
+    // Add journal detail links that match image regex
+    document.querySelectorAll('div.journal ul.journal-details a:not(.icon-download)').forEach(function(link) {
+      const href = link.getAttribute('href');
+      if (href && href.match(extensionRegexImage)) {
+        addLightboxLink(link);
+      }
     });
-});
+
+    // Add journal thumbnails that are images
+    document.querySelectorAll('div.journal div.thumbnails a').forEach(function(link) {
+      const href = link.getAttribute('href');
+      if (href && href.match(extensionRegexImage)) {
+        addLightboxLink(link);
+      }
+    });
+
+    // Add wiki thumbnails that are images
+    document.querySelectorAll('div.wiki a.thumbnail').forEach(function(link) {
+      const href = link.getAttribute('href');
+      if (href && href.match(extensionRegexImage)) {
+        addLightboxLink(link);
+      }
+    });
+
+    // Add avatar links (contact photos, user avatars) that point to image attachments
+    document.querySelectorAll('a[href*="/attachments/"]').forEach(function(link) {
+      const img = link.querySelector('img.avatar');
+      const href = link.getAttribute('href');
+      if (img && href && href.match(extensionRegexImage)) {
+        addLightboxLink(link);
+      }
+    });
+
+    // Collect PDF links
+    const pdfSelectors = [
+      'div.attachments a.pdf',
+      'table.list.files td.filename a.lightbox.pdf',
+      'table.list.files a.icon-magnifier[href$=".pdf"]'
+    ];
+
+    pdfSelectors.forEach(function(selector) {
+      document.querySelectorAll(selector).forEach(addLightboxLink);
+    });
+
+    // Add journal detail and thumbnail links that match PDF regex
+    document.querySelectorAll('div.journal ul.journal-details a:not(.icon-download)').forEach(function(link) {
+      const href = link.getAttribute('href');
+      if (href && href.match(/\.pdf$/i)) {
+        addLightboxLink(link);
+      }
+    });
+
+    document.querySelectorAll('div.journal div.thumbnails a').forEach(function(link) {
+      const href = link.getAttribute('href');
+      if (href && href.match(/\.pdf$/i)) {
+        addLightboxLink(link);
+      }
+    });
+
+    // Build unified elements array for GLightbox
+    if (allLightboxLinks.length > 0) {
+      const elements = [];
+
+      allLightboxLinks.forEach(function(link) {
+        const href = link.href;
+        const isPdf = href.match(/\.pdf$/i);
+
+        if (isPdf) {
+          // PDF: use iframe content
+          elements.push({
+            content: '<iframe src="' + href + '" style="width: 90vw; height: 90vh; border: none;"></iframe>',
+            width: '90vw',
+            height: '90vh'
+          });
+        } else {
+          // Image: use href
+          elements.push({
+            href: href,
+            type: 'image'
+          });
+        }
+      });
+
+      // Destroy previous instance if exists
+      if (lightboxInstance) {
+        lightboxInstance.destroy();
+      }
+
+      // Create single GLightbox instance for all media
+      lightboxInstance = GLightbox({
+        elements: elements,
+        touchNavigation: true,
+        loop: true,
+        zoomable: true,
+        draggable: true,
+        closeOnOutsideClick: true
+      });
+
+      // Attach click handlers directly to lightbox links (efficient)
+      allLightboxLinks.forEach(function(link, index) {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          lightboxInstance.openAt(index);
+        });
+      });
+
+      // Handle duplicate links (same href as lightbox link)
+      const allLinks = document.querySelectorAll('a[href]');
+      allLinks.forEach(function(link) {
+        const href = link.href;
+        // Check if this link is NOT already in allLightboxLinks but has same href
+        const isInLightboxLinks = allLightboxLinks.some(function(lbLink) {
+          return lbLink === link;
+        });
+
+        if (!isInLightboxLinks) {
+          // Find index in our unique list
+          const index = allLightboxLinks.findIndex(function(l) {
+            return l.href === href;
+          });
+
+          if (index !== -1) {
+            link.addEventListener('click', function(e) {
+              e.preventDefault();
+              lightboxInstance.openAt(index);
+            });
+          }
+        }
+      });
+    }
+  }
+
+  // Initialize on DOM ready
+  document.addEventListener('DOMContentLoaded', initializeLightbox);
+
+  // Re-initialize after AJAX content is loaded (for tabs, etc.)
+  document.addEventListener('ajax:complete', function() {
+    // Use setTimeout to ensure DOM is updated before initializing
+    setTimeout(initializeLightbox, 100);
+  });
+
+  // Re-initialize after jQuery UI tabs are activated (Redmine uses jQuery UI tabs)
+  // Use event delegation on document since tabs might not exist yet
+  if (typeof jQuery !== 'undefined') {
+    jQuery(document).on('tabsactivate', function() {
+      setTimeout(initializeLightbox, 100);
+    });
+  }
+
+  // Fallback: Observe DOM changes for dynamically loaded content
+  // This catches AJAX-loaded tabs that don't fire proper events
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      // Check if new nodes were added with lightbox links
+      if (mutation.addedNodes.length > 0) {
+        mutation.addedNodes.forEach(function(node) {
+          if (node.nodeType === 1) { // Element node
+            const hasLightboxLinks = node.querySelector && node.querySelector('a.lightbox');
+            if (hasLightboxLinks) {
+              setTimeout(initializeLightbox, 100);
+            }
+          }
+        });
+      }
+    });
+  });
+
+  // Observe changes to #history container (where tabs load content)
+  document.addEventListener('DOMContentLoaded', function() {
+    const historyContainer = document.getElementById('history');
+    if (historyContainer) {
+      observer.observe(historyContainer, {
+        childList: true,
+        subtree: true
+      });
+    }
+  });
+})();

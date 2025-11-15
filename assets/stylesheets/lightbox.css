@@ -1,26 +1,21 @@
+/* Redmine Lightbox - Plugin specific styles */
+
+/* Lightbox preview thumbnails */
 a.lightbox-preview img {
   margin: 0 4px;
   width: 18px;
 }
 
-.fancybox-custom .fancybox-skin {
-  box-shadow: 0 0 50px #222;
+/* GLightbox custom overrides for Redmine integration */
+.glightbox-container .gslide-description {
+  background: rgb(0 0 0 / 75%);
 }
 
-/* move prev/next buttons outside
- * fixes issue #5
- *
- * source:
- * - http://fancyapps.com/fancybox/#useful
- * - http://jsfiddle.net/Xh3B2/
- */
-.fancybox-nav { width: 70px; }
-
-.fancybox-nav span {
-  visibility: visible;
-  opacity: 0.3;
+/* Fix for GLightbox Issue #235: Title blocking iframe content
+ * https://github.com/biati-digital/glightbox/issues/235
+ * When iframe has a title, the description blocks the iframe content */
+.glightbox-container .gslide-iframe .gslide-description {
+  position: absolute;
+  bottom: 0;
+  flex: 0 0 auto;
 }
-
-.fancybox-nav:hover span { opacity: 1; }
-.fancybox-next { right: -70px; }
-.fancybox-prev { left: -70px; }
