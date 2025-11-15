@@ -14,6 +14,9 @@ Requirements
 Installation and Setup
 ----------------------
 
+For Redmine 6.1 or higher
+-------------------------
+
 - Clone this repo into your **redmine_root/plugins/** folder
 
   ```shell
@@ -22,6 +25,20 @@ Installation and Setup
   bundle config set --local without 'development test'
   bundle install
   ```
+
+- Restart Redmine
+
+For Redmine versions before 6.1
+--------------------------------
+
+If you are using Redmine 5.0 - 6.0, install the stable branch which uses Fancybox 3.5.7:
+
+```shell
+cd redmine
+git clone -b stable https://github.com/alphanodes/redmine_lightbox.git plugins/redmine_lightbox
+bundle config set --local without 'development test'
+bundle install
+```
 
 - Restart Redmine
 
