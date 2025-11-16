@@ -65,6 +65,14 @@
       const img = link.querySelector('img.avatar');
       const href = link.getAttribute('href');
       if (img && href && href.match(extensionRegexImage)) {
+        // Convert /attachments/{id}/{filename} to /attachments/thumbnail/{id}/400
+        // This handles Contacts plugin avatar links that point to HTML detail pages
+        const thumbnailMatch = href.match(/\/attachments\/(\d+)\//);
+        if (thumbnailMatch) {
+          const attachmentId = thumbnailMatch[1];
+          // Rewrite href to use 400px thumbnail instead of detail page
+          link.href = '/attachments/thumbnail/' + attachmentId + '/400';
+        }
         addLightboxLink(link);
       }
     });
