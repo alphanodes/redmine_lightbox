@@ -9,6 +9,11 @@
   // Store lightbox instance globally to destroy and recreate after AJAX
   let lightboxInstance = null;
 
+  function parseAttachmentIdFromUrl(url) {
+    const match = url.match(/\/attachments\/(\d+)\//);
+    return match ? match[1] : null;
+  }
+
   function initializeLightbox() {
     // Collect all lightbox links (images and PDFs) in DOM order for unified slideshow
     const allLightboxLinks = [];
@@ -160,9 +165,17 @@
         });
 
         if (!isInLightboxLinks) {
+          // Skip download links
+          if (link.classList.contains('icon-download')) {
+            return;
+          }
+
           // Find index in our unique list
-          const index = allLightboxLinks.findIndex(function(l) {
-            return l.href === href;
+          const index = allLightboxLinks.findIndex(function (l) {
+            return (
+              parseAttachmentIdFromUrl(l.href) ===
+              parseAttachmentIdFromUrl(href)
+            );
           });
 
           if (index !== -1) {
