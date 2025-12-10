@@ -8,6 +8,11 @@
 
   // Store lightbox instance globally to destroy and recreate after AJAX
   let lightboxInstance = null;
+  
+  function parseAttachmentIdFromUrl(url) {
+    const match = url.match(/\/attachments\/(?:download\/)?(\d+)(?:\/|$)/);
+    return match ? match[1] : null;
+  }
 
   function initializeLightbox() {
     // Collect all lightbox links (images and PDFs) in DOM order for unified slideshow
@@ -153,16 +158,22 @@
       // Handle duplicate links (same href as lightbox link)
       const allLinks = document.querySelectorAll('a[href]');
       allLinks.forEach(function(link) {
-        const href = link.href;
+        const attachmentId = parseAttachmentIdFromUrl(link.href);
+        if (!attachmentId) return;
         // Check if this link is NOT already in allLightboxLinks but has same href
         const isInLightboxLinks = allLightboxLinks.some(function(lbLink) {
           return lbLink === link;
         });
 
         if (!isInLightboxLinks) {
+          // Skip download icons
+          if (link.classList.contains('icon-download')) {
+            return;
+          }
+
           // Find index in our unique list
-          const index = allLightboxLinks.findIndex(function(l) {
-            return l.href === href;
+          const index = allLightboxLinks.findIndex(function (l) {
+            return parseAttachmentIdFromUrl(l.href) === attachmentId;
           });
 
           if (index !== -1) {
