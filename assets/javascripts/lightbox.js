@@ -52,6 +52,14 @@
       }
     });
 
+    // Add attachment thumbnails that are images (e.g., user files tab)
+    document.querySelectorAll('div.attachments div.thumbnails a').forEach(function(link) {
+      const href = link.getAttribute('href');
+      if (href && href.match(extensionRegexImage)) {
+        addLightboxLink(link);
+      }
+    });
+
     // Add wiki thumbnails that are images
     document.querySelectorAll('div.wiki a.thumbnail').forEach(function(link) {
       const href = link.getAttribute('href');
@@ -97,6 +105,14 @@
     });
 
     document.querySelectorAll('div.journal div.thumbnails a').forEach(function(link) {
+      const href = link.getAttribute('href');
+      if (href && href.match(/\.pdf$/i)) {
+        addLightboxLink(link);
+      }
+    });
+
+    // Add attachment thumbnails that are PDFs (e.g., user files tab)
+    document.querySelectorAll('div.attachments div.thumbnails a').forEach(function(link) {
       const href = link.getAttribute('href');
       if (href && href.match(/\.pdf$/i)) {
         addLightboxLink(link);
@@ -151,7 +167,8 @@
       });
 
       // Handle duplicate links (same href as lightbox link)
-      const allLinks = document.querySelectorAll('a[href]');
+      // Exclude download links - they should trigger actual download
+      const allLinks = document.querySelectorAll('a[href]:not(.icon-download)');
       allLinks.forEach(function(link) {
         const href = link.href;
         // Check if this link is NOT already in allLightboxLinks but has same href
@@ -211,14 +228,18 @@
     });
   });
 
-  // Observe changes to #history container (where tabs load content)
+  // Observe changes to tab containers (where tabs load content)
   document.addEventListener('DOMContentLoaded', function() {
-    const historyContainer = document.getElementById('history');
-    if (historyContainer) {
-      observer.observe(historyContainer, {
-        childList: true,
-        subtree: true
-      });
-    }
+    // Issue page uses #history, User page uses #user-history
+    const containers = ['history', 'user-history'];
+    containers.forEach(function(id) {
+      const container = document.getElementById(id);
+      if (container) {
+        observer.observe(container, {
+          childList: true,
+          subtree: true
+        });
+      }
+    });
   });
 })();
