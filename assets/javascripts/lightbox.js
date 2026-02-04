@@ -156,7 +156,7 @@
       });
 
       // Handle duplicate links (same href as lightbox link)
-      const allLinks = document.querySelectorAll('a[href]');
+      const allLinks = document.querySelectorAll('a[href]:not([data-method="delete"])');
       allLinks.forEach(function(link) {
         const attachmentId = parseAttachmentIdFromUrl(link.href);
         if (!attachmentId) return;
