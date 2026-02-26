@@ -6,6 +6,7 @@ plugins:
 AllCops:
   TargetRubyVersion: 2.7
   TargetRailsVersion: 5.2
+  DisabledByDefault: false
   NewCops: enable
   ActiveSupportExtensionsEnabled: true
 
