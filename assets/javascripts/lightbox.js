@@ -3,243 +3,210 @@
 (function() {
   'use strict';
 
-  // File extension regex matching on supported image types
-  const extensionRegexImage = /\.(png|jpe?g|gif|bmp)$/i;
+  const IMAGE_EXTENSION_REGEX = /\.(png|jpe?g|gif|bmp)$/i;
+  const PDF_EXTENSION_REGEX = /\.pdf$/i;
 
-  // Store lightbox instance globally to destroy and recreate after AJAX
+  const IMAGE_SELECTORS = [
+    'div.attachments a.lightbox:not(.pdf)',
+    'div.attachments a.lightbox-preview',
+    'table.list.files a.icon-magnifier:not([href$=".pdf"])',
+    '.controller-dmsf #browser a.lightbox',
+    'table.list.files td.filename a.lightbox:not(.pdf)'
+  ];
+
+  const PDF_SELECTORS = [
+    'div.attachments a.pdf',
+    'table.list.files td.filename a.lightbox.pdf',
+    'table.list.files a.icon-magnifier[href$=".pdf"]'
+  ];
+
+  const DYNAMIC_LINK_SELECTORS = [
+    'div.journal ul.journal-details a:not(.icon-download)',
+    'div.journal div.thumbnails a',
+    'div.attachments div.thumbnails a',
+    'div.wiki a.thumbnail'
+  ];
+
   let lightboxInstance = null;
 
-  function initializeLightbox() {
-    // Collect all lightbox links (images and PDFs) in DOM order for unified slideshow
-    const allLightboxLinks = [];
-    const seenHrefs = new Map(); // For deduplication
+  // Map href → index for O(1) click delegation lookup
+  let hrefIndexMap = new Map();
 
-    // Helper to add link if not duplicate
-    function addLightboxLink(link) {
+  // Collect all lightbox links (images and PDFs) in DOM order, deduplicated
+  function collectAllLinks() {
+    const allLinks = [];
+    const seenHrefs = new Set();
+
+    function addLink(link) {
       const {href} = link;
       if (!seenHrefs.has(href)) {
-        seenHrefs.set(href, true);
-        allLightboxLinks.push(link);
+        seenHrefs.add(href);
+        allLinks.push(link);
       }
     }
 
-    // Collect image links
-    const imageSelectors = [
-      'div.attachments a.lightbox:not(.pdf)',
-      'div.attachments a.lightbox-preview',
-      'table.list.files a.icon-magnifier:not([href$=".pdf"])',
-      '.controller-dmsf #browser a.lightbox',
-      'table.list.files td.filename a.lightbox:not(.pdf)'
-    ];
-
-    imageSelectors.forEach((selector) => {
-      document.querySelectorAll(selector).forEach(addLightboxLink);
+    // Static image selectors
+    IMAGE_SELECTORS.forEach((selector) => {
+      document.querySelectorAll(selector).forEach(addLink);
     });
 
-    // Add journal detail links that match image regex
-    document.querySelectorAll('div.journal ul.journal-details a:not(.icon-download)').forEach((link) => {
-      const href = link.getAttribute('href');
-      if (href && href.match(extensionRegexImage)) {
-        addLightboxLink(link);
-      }
+    // Dynamic links: single pass for both images and PDFs (Punkt 1)
+    DYNAMIC_LINK_SELECTORS.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((link) => {
+        const href = link.getAttribute('href');
+        if (href && (IMAGE_EXTENSION_REGEX.test(href) || PDF_EXTENSION_REGEX.test(href))) {
+          addLink(link);
+        }
+      });
     });
 
-    // Add journal thumbnails that are images
-    document.querySelectorAll('div.journal div.thumbnails a').forEach((link) => {
-      const href = link.getAttribute('href');
-      if (href && href.match(extensionRegexImage)) {
-        addLightboxLink(link);
-      }
-    });
-
-    // Add attachment thumbnails that are images (e.g., user files tab)
-    document.querySelectorAll('div.attachments div.thumbnails a').forEach((link) => {
-      const href = link.getAttribute('href');
-      if (href && href.match(extensionRegexImage)) {
-        addLightboxLink(link);
-      }
-    });
-
-    // Add wiki thumbnails that are images
-    document.querySelectorAll('div.wiki a.thumbnail').forEach((link) => {
-      const href = link.getAttribute('href');
-      if (href && href.match(extensionRegexImage)) {
-        addLightboxLink(link);
-      }
-    });
-
-    // Add avatar links (contact photos, user avatars) that point to image attachments
+    // Avatar links (contact photos, user avatars) that point to image attachments
     document.querySelectorAll('a[href*="/attachments/"]').forEach((link) => {
       const img = link.querySelector('img.avatar');
       const href = link.getAttribute('href');
-      if (img && href && href.match(extensionRegexImage)) {
+      if (img && href && IMAGE_EXTENSION_REGEX.test(href)) {
         // Convert /attachments/{id}/{filename} to /attachments/thumbnail/{id}/400
-        // This handles Contacts plugin avatar links that point to HTML detail pages
         const thumbnailMatch = href.match(/\/attachments\/(\d+)\//);
         if (thumbnailMatch) {
-          const attachmentId = thumbnailMatch[1];
-          // Rewrite href to use 400px thumbnail instead of detail page
-          link.href = `/attachments/thumbnail/${  attachmentId  }/400`;
+          link.href = `/attachments/thumbnail/${thumbnailMatch[1]}/400`;
         }
-        addLightboxLink(link);
+        addLink(link);
       }
     });
 
-    // Collect PDF links
-    const pdfSelectors = [
-      'div.attachments a.pdf',
-      'table.list.files td.filename a.lightbox.pdf',
-      'table.list.files a.icon-magnifier[href$=".pdf"]'
-    ];
-
-    pdfSelectors.forEach((selector) => {
-      document.querySelectorAll(selector).forEach(addLightboxLink);
+    // Static PDF selectors
+    PDF_SELECTORS.forEach((selector) => {
+      document.querySelectorAll(selector).forEach(addLink);
     });
 
-    // Add journal detail and thumbnail links that match PDF regex
-    document.querySelectorAll('div.journal ul.journal-details a:not(.icon-download)').forEach((link) => {
-      const href = link.getAttribute('href');
-      if (href && href.match(/\.pdf$/i)) {
-        addLightboxLink(link);
+    return allLinks;
+  }
+
+  // Build GLightbox elements array from collected links
+  function buildElements(links) {
+    return links.map((link) => {
+      const {href} = link;
+      if (PDF_EXTENSION_REGEX.test(href)) {
+        return {
+          content: `<iframe src="${href}" style="width: 90vw; height: 90vh; border: none;"></iframe>`,
+          width: '90vw',
+          height: '90vh'
+        };
       }
+      return {href, type: 'image'};
     });
+  }
 
-    document.querySelectorAll('div.journal div.thumbnails a').forEach((link) => {
-      const href = link.getAttribute('href');
-      if (href && href.match(/\.pdf$/i)) {
-        addLightboxLink(link);
-      }
-    });
+  // Event delegation: single click handler on document (Punkt 5)
+  // Registered once, uses hrefIndexMap for O(1) lookup.
+  let delegationInstalled = false;
 
-    // Add attachment thumbnails that are PDFs (e.g., user files tab)
-    document.querySelectorAll('div.attachments div.thumbnails a').forEach((link) => {
-      const href = link.getAttribute('href');
-      if (href && href.match(/\.pdf$/i)) {
-        addLightboxLink(link);
-      }
-    });
+  function handleDelegatedClick(e) {
+    if (!lightboxInstance) { return; }
 
-    // Build unified elements array for GLightbox
-    if (allLightboxLinks.length > 0) {
-      const elements = [];
+    const link = e.target.closest('a[href]');
+    if (!link || link.classList.contains('icon-download')) { return; }
 
-      allLightboxLinks.forEach((link) => {
-        const {href} = link;
-        const isPdf = href.match(/\.pdf$/i);
-
-        if (isPdf) {
-          // PDF: use iframe content
-          elements.push({
-            content: `<iframe src="${  href  }" style="width: 90vw; height: 90vh; border: none;"></iframe>`,
-            width: '90vw',
-            height: '90vh'
-          });
-        } else {
-          // Image: use href
-          elements.push({
-            href,
-            type: 'image'
-          });
-        }
-      });
-
-      // Destroy previous instance if exists
-      if (lightboxInstance) {
-        lightboxInstance.destroy();
-      }
-
-      // Create single GLightbox instance for all media
-      lightboxInstance = GLightbox({
-        elements,
-        touchNavigation: true,
-        loop: true,
-        zoomable: true,
-        draggable: true,
-        closeOnOutsideClick: true
-      });
-
-      // Attach click handlers directly to lightbox links (efficient)
-      allLightboxLinks.forEach((link, index) => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          lightboxInstance.openAt(index);
-        });
-      });
-
-      // Handle duplicate links (same href as lightbox link)
-      // Exclude download links - they should trigger actual download
-      const allLinks = document.querySelectorAll('a[href]:not(.icon-download)');
-      allLinks.forEach((link) => {
-        const {href} = link;
-        // Check if this link is NOT already in allLightboxLinks but has same href
-        const isInLightboxLinks = allLightboxLinks.some((lbLink) => {
-          return lbLink === link;
-        });
-
-        if (!isInLightboxLinks) {
-          // Find index in our unique list
-          const index = allLightboxLinks.findIndex((l) => {
-            return l.href === href;
-          });
-
-          if (index !== -1) {
-            link.addEventListener('click', (e) => {
-              e.preventDefault();
-              lightboxInstance.openAt(index);
-            });
-          }
-        }
-      });
+    const index = hrefIndexMap.get(link.href);
+    if (index !== undefined) {
+      e.preventDefault();
+      lightboxInstance.openAt(index);
     }
   }
+
+  function setupDelegation() {
+    if (delegationInstalled) { return; }
+    document.addEventListener('click', handleDelegatedClick, false);
+    delegationInstalled = true;
+  }
+
+  // Build href → index map from collected links (Punkt 2 + 5)
+  function updateLinkMap(links) {
+    hrefIndexMap = new Map();
+    links.forEach((link, index) => {
+      const {href} = link;
+      if (!hrefIndexMap.has(href)) {
+        hrefIndexMap.set(href, index);
+      }
+    });
+  }
+
+  function initializeLightbox() {
+    const allLinks = collectAllLinks();
+    if (allLinks.length === 0) { return; }
+
+    const elements = buildElements(allLinks);
+
+    if (lightboxInstance) {
+      lightboxInstance.destroy();
+    }
+
+    lightboxInstance = GLightbox({
+      elements,
+      touchNavigation: true,
+      loop: true,
+      zoomable: true,
+      draggable: true,
+      closeOnOutsideClick: true
+    });
+
+    updateLinkMap(allLinks);
+    setupDelegation();
+  }
+
+  // Debounce helper (Punkt 3)
+  function debounce(fn, delay) {
+    let timer = null;
+    return function() {
+      if (timer) { clearTimeout(timer); }
+      timer = setTimeout(fn, delay);
+    };
+  }
+
+  const debouncedInit = debounce(initializeLightbox, 100);
 
   // Initialize on DOM ready
   document.addEventListener('DOMContentLoaded', initializeLightbox);
 
-  // Re-initialize after AJAX content is loaded (for tabs, etc.)
-  document.addEventListener('ajax:complete', () => {
-    // Use setTimeout to ensure DOM is updated before initializing
-    setTimeout(initializeLightbox, 100);
-  });
+  // Re-initialize after AJAX / tab changes via debounced handler (Punkt 3 + 4)
+  document.addEventListener('ajax:complete', debouncedInit);
 
-  // Re-initialize after jQuery UI tabs are activated (Redmine uses jQuery UI tabs)
-  // Use event delegation on document since tabs might not exist yet
   if (typeof jQuery !== 'undefined') {
-    jQuery(document).on('tabsactivate', () => {
-      setTimeout(initializeLightbox, 100);
-    });
+    jQuery(document).on('tabsactivate', debouncedInit);
   }
 
   // Fallback: Observe DOM changes for dynamically loaded content
-  // This catches AJAX-loaded tabs that don't fire proper events
   const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      // Check if new nodes were added with lightbox links
-      if (mutation.addedNodes.length > 0) {
-        mutation.addedNodes.forEach((node) => {
-          if (node.nodeType === 1) { // Element node
-            const hasLightboxLinks = node.querySelector && node.querySelector('a.lightbox');
-            if (hasLightboxLinks) {
-              setTimeout(initializeLightbox, 100);
-            }
-          }
-        });
-      }
+    const hasNewLinks = mutations.some((mutation) => {
+      return Array.from(mutation.addedNodes).some((node) => {
+        return node.nodeType === 1 && node.querySelector && node.querySelector('a.lightbox');
+      });
     });
+    if (hasNewLinks) {
+      debouncedInit();
+    }
   });
 
   // Observe changes to tab containers (where tabs load content)
   document.addEventListener('DOMContentLoaded', () => {
-    // Issue page uses #history, User page uses #user-history
     const containers = ['history', 'user-history'];
     containers.forEach((id) => {
       const container = document.getElementById(id);
       if (container) {
-        observer.observe(container, {
-          childList: true,
-          subtree: true
-        });
+        observer.observe(container, {childList: true, subtree: true});
       }
     });
   });
+
+  // Expose internals for testing
+  window.RedmineLightbox = {
+    collectAllLinks,
+    buildElements,
+    initializeLightbox,
+    debouncedInit,
+    _reset() {
+      lightboxInstance = null;
+      hrefIndexMap = new Map();
+    }
+  };
 })();

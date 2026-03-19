@@ -2,7 +2,13 @@
   "dependencies": {
     "glightbox": "^3.3.1"
   },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
   "devDependencies": {
+    "jsdom": "^26.1.0",
+    "vitest": "^3.2.0",
     "@eslint/js": "^10.0.1",
     "@stylistic/stylelint-config": "^4.0.0",
     "@stylistic/stylelint-plugin": "^5.0.1",
