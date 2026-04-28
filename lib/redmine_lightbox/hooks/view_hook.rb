@@ -4,7 +4,7 @@ module RedmineLightbox
   module Hooks
     class ViewHook < Redmine::Hook::ViewListener
       def view_layouts_base_html_head(context = {})
-        return unless RedmineLightbox.lightbox_controllers.include? context[:controller].class.to_s
+        return unless RedmineLightbox.lightbox_active_for? context[:controller]
 
         stylesheet_link_tag('glightbox.min.css', plugin: 'redmine_lightbox', media: 'screen') +
           stylesheet_link_tag('lightbox.css', plugin: 'redmine_lightbox', media: 'screen') +

@@ -3,7 +3,7 @@ Redmine Lightbox
 
 [![Run Linters](https://github.com/AlphaNodes/redmine_lightbox/workflows/Run%20Linters/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions/workflows/linters.yml) [![Run Tests](https://github.com/AlphaNodes/redmine_lightbox/workflows/Tests/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions/workflows/tests.yml) [![Vitest](https://github.com/AlphaNodes/redmine_lightbox/workflows/Vitest/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions/workflows/vitest.yml)
 
-This plugin lets you preview image (JPG, GIF, PNG, BMP) and PDF attachments in a lightbox based on [GLightbox](https://github.com/biati-digital/glightbox).
+This plugin lets you preview image (JPG, GIF, PNG, BMP, TIFF, WebP) and PDF attachments in a lightbox based on [GLightbox](https://github.com/biati-digital/glightbox).
 
 Requirements
 ------------

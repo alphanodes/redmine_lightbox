@@ -131,6 +131,30 @@ describe('RedmineLightbox', () => {
       expect(links).toHaveLength(1);
     });
 
+    it('finds journal WebP image links', () => {
+      document.body.innerHTML = `
+        <div class="journal">
+          <ul class="journal-details">
+            <li><a href="http://localhost/attachments/1/photo.webp">photo.webp</a></li>
+          </ul>
+        </div>
+      `;
+      const links = window.RedmineLightbox.collectAllLinks();
+      expect(links).toHaveLength(1);
+    });
+
+    it('finds journal TIFF image links', () => {
+      document.body.innerHTML = `
+        <div class="journal">
+          <ul class="journal-details">
+            <li><a href="http://localhost/attachments/1/scan.tiff">scan.tiff</a></li>
+          </ul>
+        </div>
+      `;
+      const links = window.RedmineLightbox.collectAllLinks();
+      expect(links).toHaveLength(1);
+    });
+
     it('rewrites avatar attachment URLs to thumbnails', () => {
       document.body.innerHTML = `
         <a href="http://localhost/attachments/42/avatar.jpg">

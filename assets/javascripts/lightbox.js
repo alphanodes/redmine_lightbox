@@ -3,7 +3,7 @@
 (function() {
   'use strict';
 
-  const IMAGE_EXTENSION_REGEX = /\.(png|jpe?g|gif|bmp)$/i;
+  const IMAGE_EXTENSION_REGEX = /\.(png|jpe?g|jpe|gif|bmp|tiff?|webp)$/i;
   const PDF_EXTENSION_REGEX = /\.pdf$/i;
 
   const IMAGE_SELECTORS = [
