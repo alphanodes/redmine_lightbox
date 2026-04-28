@@ -1,7 +1,7 @@
 /* Redmine Lightbox - Plugin specific styles */
 
 /* Lightbox preview thumbnails */
-a.lightbox-preview img {
+.lightbox-preview img {
   margin: 0 4px;
   width: 18px;
 }
@@ -9,6 +9,10 @@ a.lightbox-preview img {
 /* GLightbox custom overrides for Redmine integration */
 .glightbox-container {
   --rl-caption-color: #fff;
+  --rl-thumb-bg: rgb(0 0 0 / 75%);
+  --rl-thumb-border: rgb(255 255 255 / 80%);
+  --rl-thumb-icon: rgb(255 255 255 / 90%);
+  --rl-thumb-font-size: 0.75rem;
 }
 
 .glightbox-container .gslide-description {
@@ -35,4 +39,159 @@ a.lightbox-preview img {
   position: absolute;
   bottom: 0;
   flex: 0 0 auto;
+}
+
+/* Native HTML5 video element for video attachments */
+.glightbox-container video {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: block;
+}
+
+/* Thumbnail strip below the active slide. The strip stacks a caption row
+ * above the thumb buttons so the filename stays in a stable position
+ * regardless of media size or iframe content. */
+.rl-thumbs {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--rl-thumb-bg);
+  border-top: 1px solid rgb(255 255 255 / 10%);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.2s ease;
+}
+
+.rl-thumbs-caption {
+  flex: 0 0 auto;
+  padding: 4px 12px;
+  color: var(--rl-caption-color);
+  font-size: var(--rl-thumb-font-size);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  min-height: 1em;
+}
+
+.rl-thumbs-scroll {
+  flex: 0 0 70px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.rl-thumbs-inner {
+  display: flex;
+  gap: 4px;
+  height: 100%;
+  align-items: center;
+  padding: 4px 8px;
+  width: max-content;
+  margin: 0 auto;
+}
+
+.rl-thumb {
+  flex-shrink: 0;
+  width: 80px;
+  height: 60px;
+  padding: 0;
+  background: rgb(255 255 255 / 10%);
+  border: 2px solid transparent;
+  border-radius: 2px;
+  cursor: pointer;
+  overflow: hidden;
+  opacity: 0.7;
+  transition: opacity 0.15s ease, border-color 0.15s ease;
+  color: var(--rl-thumb-icon);
+  font-size: var(--rl-thumb-font-size);
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rl-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.rl-thumb svg {
+  width: 24px;
+  height: 24px;
+}
+
+.rl-thumb:hover,
+.rl-thumb:focus {
+  opacity: 0.9;
+  outline: none;
+}
+
+.rl-thumb.active {
+  opacity: 1;
+  border-color: var(--rl-thumb-border);
+}
+
+/* When a thumbnail strip is rendered, the filename is shown in the strip
+ * itself (.rl-thumbs-caption). Hide GLightbox's own caption so it doesn't
+ * compete for space with the slide media. The body class is set
+ * synchronously before openAt() so the rule applies on first paint —
+ * :has(.rl-thumbs) would only match after the panel is appended in
+ * onOpen, causing a visible jump. */
+body.rl-lightbox-thumbs .glightbox-container .gslide-description {
+  display: none;
+}
+
+/* Reserve space for the thumb strip at the bottom of the lightbox
+ * container. With border-box, the inner slide area shrinks accordingly
+ * so vertically-centered images and PDF iframes stay above the strip. */
+body.rl-lightbox-thumbs .glightbox-container {
+  box-sizing: border-box;
+  padding-bottom: 100px;
+}
+
+/* GLightbox sets an inline-style max-height on images after load. We need
+ * !important to keep the cap consistent with the reduced container. */
+body.rl-lightbox-thumbs .gslide-image img {
+  max-height: calc(100vh - 100px) !important;
+}
+
+/* Capping max-height makes images narrower than .gslide-media's 90vw box,
+ * so center them horizontally instead of letting them stick to the left. */
+body.rl-lightbox-thumbs .gslide-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.rl-lightbox-thumbs .glightbox-container .gslide-iframe iframe {
+  height: calc(100vh - 100px) !important;
+}
+
+/* When the current slide is zoomed (user clicked the image) we give the
+ * image the full viewport: hide the thumb strip and remove the reserved
+ * padding + image cap so the picture expands. */
+.glightbox-container:has(.gslide.current.zoomed) .rl-thumbs {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.rl-lightbox-thumbs .glightbox-container:has(.gslide.current.zoomed) {
+  padding-bottom: 0;
+}
+
+body.rl-lightbox-thumbs .glightbox-container:has(.gslide.current.zoomed) .gslide-image img {
+  max-height: 100vh !important;
+}
+
+/* GLightbox applies a translate3d() pan transform to .gslide-media when
+ * zooming. Combined with our max-height cap that pan would push the image
+ * off-screen — neutralize the transform so the image stays centered. */
+body.rl-lightbox-thumbs .glightbox-container:has(.gslide.current.zoomed) .gslide-media {
+  transform: none !important;
 }

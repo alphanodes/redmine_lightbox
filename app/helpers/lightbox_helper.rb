@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 module LightboxHelper
+  LIGHTBOX_VIDEO_EXTENSIONS = %w[mp4 webm].freeze
+
   def link_to_attachment(attachment, **options)
     with_lightbox = false
 
     if options[:class].present? && options[:class].include?('icon-download')
       # we don't want lightbox for this link, because this case duplicated entries in image slide
-    elsif attachment.is_pdf? || attachment.is_image?
+    elsif attachment.is_pdf? || attachment.is_image? || lightbox_video?(attachment)
       with_lightbox = true
       options[:class] = lightbox_image_classes attachment, options[:class]
     end
@@ -17,7 +19,7 @@ module LightboxHelper
 
       options[:title] ||= "#{l :label_preview}: #{caption}"
       options[:rel] ||= 'attachments'
-      options[:data] = { type: attachment.is_pdf? ? 'iframe' : 'image',
+      options[:data] = { type: lightbox_attachment_type(attachment),
                          fancybox: options[:rel],
                          caption: caption }
     end
@@ -33,7 +35,7 @@ module LightboxHelper
                 rel: 'thumbnails',
                 class: lightbox_image_classes(attachment) }
 
-    options[:data] = { type: attachment.is_pdf? ? 'iframe' : 'image',
+    options[:data] = { type: lightbox_attachment_type(attachment),
                        fancybox: options[:rel],
                        caption: caption }
 
@@ -58,11 +60,27 @@ module LightboxHelper
     if attachment.is_pdf?
       classes << 'lightbox'
       classes << 'pdf'
+    elsif lightbox_video? attachment
+      classes << 'lightbox'
+      classes << 'video'
+      classes << attachment.filename.split('.').last.downcase
     elsif attachment.is_image?
       classes << 'lightbox'
       classes << attachment.filename.split('.').last.downcase
     end
 
     classes.join ' '
+  end
+
+  def lightbox_video?(attachment)
+    extension = attachment.filename.split('.').last.to_s.downcase
+    LIGHTBOX_VIDEO_EXTENSIONS.include? extension
+  end
+
+  def lightbox_attachment_type(attachment)
+    return 'iframe' if attachment.is_pdf?
+    return 'video' if lightbox_video? attachment
+
+    'image'
   end
 end

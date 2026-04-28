@@ -155,6 +155,28 @@ describe('RedmineLightbox', () => {
       expect(links).toHaveLength(1);
     });
 
+    it('finds attachment video link with lightbox.video class', () => {
+      document.body.innerHTML = `
+        <div class="attachments">
+          <a href="http://localhost/attachments/1/clip.mp4" class="lightbox video mp4">clip.mp4</a>
+        </div>
+      `;
+      const links = window.RedmineLightbox.collectAllLinks();
+      expect(links).toHaveLength(1);
+    });
+
+    it('finds journal video links by extension', () => {
+      document.body.innerHTML = `
+        <div class="journal">
+          <ul class="journal-details">
+            <li><a href="http://localhost/attachments/1/movie.webm">movie.webm</a></li>
+          </ul>
+        </div>
+      `;
+      const links = window.RedmineLightbox.collectAllLinks();
+      expect(links).toHaveLength(1);
+    });
+
     it('rewrites avatar attachment URLs to thumbnails', () => {
       document.body.innerHTML = `
         <a href="http://localhost/attachments/42/avatar.jpg">
@@ -294,6 +316,77 @@ describe('RedmineLightbox', () => {
     it('returns empty array for empty input', () => {
       const elements = window.RedmineLightbox.buildElements([]);
       expect(elements).toHaveLength(0);
+    });
+
+    it('creates video element for mp4 link', () => {
+      document.body.innerHTML = '<a href="http://localhost/movie.mp4">m</a>';
+      const link = document.querySelector('a');
+      const elements = window.RedmineLightbox.buildElements([link]);
+      expect(elements[0].content).toContain('<video');
+      expect(elements[0].content).toContain('type="video/mp4"');
+      expect(elements[0].content).toContain('movie.mp4');
+      expect(elements[0].width).toBe('90vw');
+    });
+
+    it('creates video element for webm link', () => {
+      document.body.innerHTML = '<a href="http://localhost/clip.webm">c</a>';
+      const link = document.querySelector('a');
+      const elements = window.RedmineLightbox.buildElements([link]);
+      expect(elements[0].content).toContain('type="video/webm"');
+    });
+  });
+
+  // ── buildThumbnailPanel ─────────────────────────────────────────────
+  describe('buildThumbnailPanel', () => {
+    it('creates a button per element', () => {
+      document.body.innerHTML = `
+        <a id="a" href="http://localhost/attachments/1/a.jpg">a</a>
+        <a id="b" href="http://localhost/attachments/2/b.png">b</a>
+      `;
+      const links = [document.getElementById('a'), document.getElementById('b')];
+      const elements = window.RedmineLightbox.buildElements(links);
+      const panel = window.RedmineLightbox.buildThumbnailPanel(elements, links);
+      expect(panel.classList.contains('rl-thumbs')).toBe(true);
+      expect(panel.querySelectorAll('.rl-thumb')).toHaveLength(2);
+    });
+
+    it('uses Redmine thumbnail URL for image attachments', () => {
+      document.body.innerHTML = '<a href="http://localhost/attachments/42/photo.jpg">x</a>';
+      const link = document.querySelector('a');
+      const elements = window.RedmineLightbox.buildElements([link]);
+      const panel = window.RedmineLightbox.buildThumbnailPanel(elements, [link]);
+      const img = panel.querySelector('.rl-thumb img');
+      expect(img.src).toContain('/attachments/thumbnail/42/200');
+    });
+
+    it('uses thumbnail URL for PDF links with attachment ID', () => {
+      document.body.innerHTML = '<a href="http://localhost/attachments/7/doc.pdf">x</a>';
+      const link = document.querySelector('a');
+      const elements = window.RedmineLightbox.buildElements([link]);
+      const panel = window.RedmineLightbox.buildThumbnailPanel(elements, [link]);
+      const btn = panel.querySelector('.rl-thumb');
+      expect(btn.classList.contains('rl-thumb-pdf')).toBe(true);
+      expect(btn.querySelector('img')?.src).toContain('/attachments/thumbnail/7/200');
+    });
+
+    it('renders PDF text fallback when no attachment ID is present', () => {
+      document.body.innerHTML = '<a href="http://localhost/somewhere/doc.pdf">x</a>';
+      const link = document.querySelector('a');
+      const elements = window.RedmineLightbox.buildElements([link]);
+      const panel = window.RedmineLightbox.buildThumbnailPanel(elements, [link]);
+      const btn = panel.querySelector('.rl-thumb');
+      expect(btn.classList.contains('rl-thumb-pdf')).toBe(true);
+      expect(btn.textContent).toBe('PDF');
+    });
+
+    it('renders play icon for video links', () => {
+      document.body.innerHTML = '<a href="http://localhost/attachments/1/m.mp4">x</a>';
+      const link = document.querySelector('a');
+      const elements = window.RedmineLightbox.buildElements([link]);
+      const panel = window.RedmineLightbox.buildThumbnailPanel(elements, [link]);
+      const btn = panel.querySelector('.rl-thumb');
+      expect(btn.classList.contains('rl-thumb-video')).toBe(true);
+      expect(btn.querySelector('svg')).toBeTruthy();
     });
   });
 

@@ -5,8 +5,13 @@
 
   const IMAGE_EXTENSION_REGEX = /\.(png|jpe?g|jpe|gif|bmp|tiff?|webp)$/i;
   const PDF_EXTENSION_REGEX = /\.pdf$/i;
+  const VIDEO_EXTENSION_REGEX = /\.(mp4|webm)$/i;
   const ATTACHMENT_ID_REGEX = /\/attachments\/(?:(?:download|thumbnail)\/)?(\d+)(?:\/|$)/;
   const URL_PARAM = 'lightbox';
+  const VIDEO_MIME_TYPES = {
+    mp4: 'video/mp4',
+    webm: 'video/webm'
+  };
 
   const IMAGE_SELECTORS = [
     'div.attachments a.lightbox:not(.pdf)',
@@ -22,6 +27,11 @@
     'table.list.files a.icon-magnifier[href$=".pdf"]'
   ];
 
+  const VIDEO_SELECTORS = [
+    'div.attachments a.lightbox.video',
+    'table.list.files td.filename a.lightbox.video'
+  ];
+
   const DYNAMIC_LINK_SELECTORS = [
     'div.journal ul.journal-details a:not(.icon-download)',
     'div.journal div.thumbnails a',
@@ -30,6 +40,8 @@
   ];
 
   let lightboxInstance = null;
+  let thumbPanel = null;
+  let lastElements = [];
 
   // Map href → index for O(1) click delegation lookup
   let hrefIndexMap = new Map();
@@ -101,11 +113,11 @@
       document.querySelectorAll(selector).forEach(addLink);
     });
 
-    // Dynamic links: single pass for both images and PDFs (Punkt 1)
+    // Dynamic links: single pass for images, PDFs and videos
     DYNAMIC_LINK_SELECTORS.forEach((selector) => {
       document.querySelectorAll(selector).forEach((link) => {
         const href = link.getAttribute('href');
-        if (href && (IMAGE_EXTENSION_REGEX.test(href) || PDF_EXTENSION_REGEX.test(href))) {
+        if (href && (IMAGE_EXTENSION_REGEX.test(href) || PDF_EXTENSION_REGEX.test(href) || VIDEO_EXTENSION_REGEX.test(href))) {
           addLink(link);
         }
       });
@@ -130,6 +142,11 @@
       document.querySelectorAll(selector).forEach(addLink);
     });
 
+    // Static video selectors
+    VIDEO_SELECTORS.forEach((selector) => {
+      document.querySelectorAll(selector).forEach(addLink);
+    });
+
     return allLinks;
   }
 
@@ -141,6 +158,17 @@
       if (PDF_EXTENSION_REGEX.test(href)) {
         return {
           content: `<iframe src="${href}" style="width: 90vw; height: 90vh; border: none;"></iframe>`,
+          width: '90vw',
+          height: '90vh',
+          title
+        };
+      }
+      const videoMatch = href.match(VIDEO_EXTENSION_REGEX);
+      if (videoMatch) {
+        const ext = videoMatch[1].toLowerCase();
+        const mime = VIDEO_MIME_TYPES[ext] || 'video/mp4';
+        return {
+          content: `<video controls preload="metadata" style="width: 90vw; height: 90vh; max-width: 90vw; max-height: 90vh;"><source src="${href}" type="${mime}"></video>`,
           width: '90vw',
           height: '90vh',
           title
@@ -163,6 +191,9 @@
     const index = hrefIndexMap.get(link.href);
     if (index !== undefined) {
       e.preventDefault();
+      // Apply body class synchronously so :has-style layout rules kick in
+      // before the lightbox container is rendered (avoids caption jump).
+      if (thumbPanel) { document.body.classList.add('rl-lightbox-thumbs'); }
       lightboxInstance.openAt(index);
     }
   }
@@ -214,6 +245,7 @@
     if (isLightboxOpen) {
       lightboxInstance.goToSlide(index);
     } else {
+      if (thumbPanel) { document.body.classList.add('rl-lightbox-thumbs'); }
       lightboxInstance.openAt(index);
     }
   }
@@ -234,10 +266,117 @@
 
     const index = idIndexMap.get(id);
     if (index !== undefined) {
+      if (thumbPanel) { document.body.classList.add('rl-lightbox-thumbs'); }
       lightboxInstance.openAt(index);
     } else {
       updateUrlParam(null, 'replace');
     }
+  }
+
+  // Build the thumbnail strip displayed below the active slide.
+  function buildThumbnailPanel(elements, links) {
+    lastElements = elements;
+
+    const panel = document.createElement('div');
+    panel.className = 'rl-thumbs';
+
+    const caption = document.createElement('div');
+    caption.className = 'rl-thumbs-caption';
+    panel.appendChild(caption);
+
+    const scroll = document.createElement('div');
+    scroll.className = 'rl-thumbs-scroll';
+    panel.appendChild(scroll);
+
+    const inner = document.createElement('div');
+    inner.className = 'rl-thumbs-inner';
+    scroll.appendChild(inner);
+
+    elements.forEach((el, index) => {
+      const link = links[index];
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'rl-thumb';
+      btn.dataset.index = String(index);
+      btn.title = el.title || '';
+      btn.setAttribute('aria-label', el.title || `Slide ${index + 1}`);
+
+      const {href} = link;
+      const id = parseAttachmentId(href);
+
+      if (PDF_EXTENSION_REGEX.test(href)) {
+        btn.classList.add('rl-thumb-pdf');
+        if (id !== null) {
+          // Redmine generates PDF thumbnails when Ghostscript is installed.
+          // Fall back to a plain "PDF" label if the request fails.
+          const img = document.createElement('img');
+          img.src = `/attachments/thumbnail/${id}/200`;
+          img.alt = el.title || '';
+          img.loading = 'lazy';
+          img.addEventListener('error', () => {
+            img.remove();
+            btn.textContent = 'PDF';
+          });
+          btn.appendChild(img);
+        } else {
+          btn.textContent = 'PDF';
+        }
+      } else if (VIDEO_EXTENSION_REGEX.test(href)) {
+        btn.classList.add('rl-thumb-video');
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6,4 22,12 6,20"></polygon></svg>';
+      } else if (id !== null) {
+        const img = document.createElement('img');
+        img.src = `/attachments/thumbnail/${id}/200`;
+        img.alt = el.title || '';
+        img.loading = 'lazy';
+        btn.appendChild(img);
+      }
+
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (lightboxInstance) {
+          lightboxInstance.goToSlide(index);
+        }
+      });
+
+      inner.appendChild(btn);
+    });
+
+    return panel;
+  }
+
+  function attachThumbnailPanel() {
+    if (!thumbPanel) { return; }
+    const container = document.querySelector('.glightbox-container');
+    if (container && !container.contains(thumbPanel)) {
+      container.appendChild(thumbPanel);
+    }
+  }
+
+  function updateActiveThumbnail(index) {
+    if (!thumbPanel) { return; }
+    const buttons = thumbPanel.querySelectorAll('.rl-thumb');
+    buttons.forEach((btn, i) => btn.classList.toggle('active', i === index));
+
+    const captionEl = thumbPanel.querySelector('.rl-thumbs-caption');
+    if (captionEl) {
+      const el = lastElements[index];
+      captionEl.textContent = (el && el.title) || '';
+    }
+
+    const active = buttons[index];
+    if (active && active.scrollIntoView) {
+      active.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    }
+  }
+
+  function destroyThumbnailPanel() {
+    if (thumbPanel) {
+      thumbPanel.remove();
+      thumbPanel = null;
+    }
+    lastElements = [];
   }
 
   function initializeLightbox() {
@@ -249,6 +388,10 @@
     if (lightboxInstance) {
       lightboxInstance.destroy();
     }
+    destroyThumbnailPanel();
+    if (elements.length > 1) {
+      thumbPanel = buildThumbnailPanel(elements, allLinks);
+    }
 
     lightboxInstance = GLightbox({
       elements,
@@ -259,9 +402,11 @@
       closeOnOutsideClick: true,
       onOpen: () => {
         isLightboxOpen = true;
+        attachThumbnailPanel();
         const index = lightboxInstance.getActiveSlideIndex
           ? lightboxInstance.getActiveSlideIndex()
           : 0;
+        updateActiveThumbnail(index);
         const id = indexIdMap.get(index);
         if (id !== undefined) {
           updateUrlParam(id, isHistoryNavigation ? 'replace' : 'push');
@@ -270,6 +415,7 @@
       },
       onClose: () => {
         isLightboxOpen = false;
+        document.body.classList.remove('rl-lightbox-thumbs');
         if (!isClosingFromPopstate) {
           updateUrlParam(null, 'push');
         }
@@ -281,6 +427,7 @@
       lightboxInstance.on('slide_changed', (data) => {
         const current = data && data.current;
         if (!current) { return; }
+        updateActiveThumbnail(current.index);
         const id = indexIdMap.get(current.index);
         if (id !== undefined) {
           updateUrlParam(id, 'replace');
@@ -346,6 +493,7 @@
     debouncedInit,
     parseAttachmentId,
     extractCaption,
+    buildThumbnailPanel,
     _reset() {
       lightboxInstance = null;
       hrefIndexMap = new Map();
@@ -355,6 +503,7 @@
       isHistoryNavigation = false;
       isClosingFromPopstate = false;
       initialUrlChecked = false;
+      destroyThumbnailPanel();
     }
   };
 })();
