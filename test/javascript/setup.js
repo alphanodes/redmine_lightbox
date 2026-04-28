@@ -4,7 +4,10 @@ import { vi } from 'vitest';
 globalThis.GLightbox = vi.fn(() => ({
   destroy: vi.fn(),
   openAt: vi.fn(),
-  close: vi.fn()
+  close: vi.fn(),
+  on: vi.fn(),
+  goToSlide: vi.fn(),
+  getActiveSlideIndex: vi.fn(() => 0)
 }));
 
 // jQuery is not available in test environment

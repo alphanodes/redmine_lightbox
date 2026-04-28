@@ -7,8 +7,25 @@ a.lightbox-preview img {
 }
 
 /* GLightbox custom overrides for Redmine integration */
+.glightbox-container {
+  --rl-caption-color: #fff;
+}
+
 .glightbox-container .gslide-description {
   background: rgb(0 0 0 / 75%);
+  color: var(--rl-caption-color);
+  padding: 0;
+}
+
+.glightbox-container .gslide-description .gdesc-inner {
+  padding: 6px 12px;
+}
+
+/* Override Redmine theme color inheritance for caption text and tighten margins */
+.glightbox-container .gslide-title,
+.glightbox-container .gslide-desc {
+  color: var(--rl-caption-color);
+  margin: 0;
 }
 
 /* Fix for GLightbox Issue #235: Title blocking iframe content

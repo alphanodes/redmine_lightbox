@@ -265,7 +265,7 @@ describe('RedmineLightbox', () => {
       const link = document.querySelector('a');
       const elements = window.RedmineLightbox.buildElements([link]);
       expect(elements).toHaveLength(1);
-      expect(elements[0]).toEqual({href: 'http://localhost/photo.jpg', type: 'image'});
+      expect(elements[0]).toEqual({href: 'http://localhost/photo.jpg', type: 'image', title: 'photo.jpg'});
     });
 
     it('creates iframe element for PDF link', () => {
@@ -500,6 +500,188 @@ describe('RedmineLightbox', () => {
 
       expect(openAtCalls).toHaveLength(1);
       expect(openAtCalls[0]).toBe(0);
+    });
+  });
+
+  // ── parseAttachmentId ───────────────────────────────────────────────
+  describe('parseAttachmentId', () => {
+    it('extracts ID from canonical attachment URL', () => {
+      expect(window.RedmineLightbox.parseAttachmentId('http://localhost/attachments/42/photo.jpg')).toBe(42);
+    });
+
+    it('extracts ID from download URL', () => {
+      expect(window.RedmineLightbox.parseAttachmentId('http://localhost/attachments/download/7/file.pdf')).toBe(7);
+    });
+
+    it('extracts ID from thumbnail URL', () => {
+      expect(window.RedmineLightbox.parseAttachmentId('http://localhost/attachments/thumbnail/15/400')).toBe(15);
+    });
+
+    it('returns null for non-attachment URLs', () => {
+      expect(window.RedmineLightbox.parseAttachmentId('http://localhost/issues/1')).toBeNull();
+    });
+
+    it('returns null for null or empty input', () => {
+      expect(window.RedmineLightbox.parseAttachmentId(null)).toBeNull();
+      expect(window.RedmineLightbox.parseAttachmentId('')).toBeNull();
+    });
+  });
+
+  // ── extractCaption ──────────────────────────────────────────────────
+  describe('extractCaption', () => {
+    it('uses data-caption when present', () => {
+      document.body.innerHTML = '<a href="http://localhost/attachments/1/x.jpg" data-caption="My Title">x</a>';
+      const link = document.querySelector('a');
+      expect(window.RedmineLightbox.extractCaption(link)).toBe('My Title');
+    });
+
+    it('falls back to filename derived from URL', () => {
+      document.body.innerHTML = '<a href="http://localhost/attachments/1/diagram.png">x</a>';
+      const link = document.querySelector('a');
+      expect(window.RedmineLightbox.extractCaption(link)).toBe('diagram.png');
+    });
+
+    it('decodes URL-encoded filenames', () => {
+      document.body.innerHTML = '<a href="http://localhost/attachments/1/Bildschirm%20Foto.png">x</a>';
+      const link = document.querySelector('a');
+      expect(window.RedmineLightbox.extractCaption(link)).toBe('Bildschirm Foto.png');
+    });
+  });
+
+  // ── buildElements with caption ──────────────────────────────────────
+  describe('buildElements with caption', () => {
+    it('sets title from data-caption for image', () => {
+      document.body.innerHTML = '<a href="http://localhost/attachments/1/photo.jpg" data-caption="Holiday">photo</a>';
+      const link = document.querySelector('a');
+      const elements = window.RedmineLightbox.buildElements([link]);
+      expect(elements[0].title).toBe('Holiday');
+    });
+
+    it('sets title from filename when no data-caption', () => {
+      document.body.innerHTML = '<a href="http://localhost/attachments/1/photo.jpg">photo</a>';
+      const link = document.querySelector('a');
+      const elements = window.RedmineLightbox.buildElements([link]);
+      expect(elements[0].title).toBe('photo.jpg');
+    });
+
+    it('sets title for PDF elements', () => {
+      document.body.innerHTML = '<a href="http://localhost/attachments/1/manual.pdf" data-caption="User Manual">pdf</a>';
+      const link = document.querySelector('a');
+      const elements = window.RedmineLightbox.buildElements([link]);
+      expect(elements[0].title).toBe('User Manual');
+      expect(elements[0].content).toContain('<iframe');
+    });
+  });
+
+  // ── URL query parameter ─────────────────────────────────────────────
+  describe('URL query parameter', () => {
+    beforeEach(() => {
+      // Reset URL to a clean state
+      window.history.replaceState({}, '', 'http://localhost/issues/1');
+      // Restore full GLightbox mock — earlier describe blocks override it
+      GLightbox.mockImplementation(() => ({
+        destroy: vi.fn(),
+        openAt: vi.fn(),
+        close: vi.fn(),
+        on: vi.fn(),
+        goToSlide: vi.fn(),
+        getActiveSlideIndex: vi.fn(() => 0)
+      }));
+    });
+
+    it('opens lightbox automatically when ?lightbox= matches an attachment ID', () => {
+      window.history.replaceState({}, '', 'http://localhost/issues/1?lightbox=42');
+      document.body.innerHTML = `
+        <div class="attachments">
+          <a href="http://localhost/attachments/42/photo.jpg" class="lightbox">photo.jpg</a>
+        </div>
+      `;
+      window.RedmineLightbox.initializeLightbox();
+      const instance = GLightbox.mock.results[0].value;
+
+      expect(instance.openAt).toHaveBeenCalledWith(0);
+    });
+
+    it('strips ?lightbox= from URL when ID is not on the page', () => {
+      window.history.replaceState({}, '', 'http://localhost/issues/1?lightbox=999');
+      document.body.innerHTML = `
+        <div class="attachments">
+          <a href="http://localhost/attachments/42/photo.jpg" class="lightbox">photo.jpg</a>
+        </div>
+      `;
+      window.RedmineLightbox.initializeLightbox();
+      const instance = GLightbox.mock.results[0].value;
+
+      expect(instance.openAt).not.toHaveBeenCalled();
+      expect(window.location.search).toBe('');
+    });
+
+    it('ignores non-numeric ?lightbox= values', () => {
+      window.history.replaceState({}, '', 'http://localhost/issues/1?lightbox=abc');
+      document.body.innerHTML = `
+        <div class="attachments">
+          <a href="http://localhost/attachments/42/photo.jpg" class="lightbox">photo.jpg</a>
+        </div>
+      `;
+      window.RedmineLightbox.initializeLightbox();
+      const instance = GLightbox.mock.results[0].value;
+
+      expect(instance.openAt).not.toHaveBeenCalled();
+    });
+
+    it('registers slide_changed handler on lightbox instance', () => {
+      document.body.innerHTML = `
+        <div class="attachments">
+          <a href="http://localhost/attachments/42/photo.jpg" class="lightbox">photo.jpg</a>
+        </div>
+      `;
+      window.RedmineLightbox.initializeLightbox();
+      const instance = GLightbox.mock.results[0].value;
+
+      expect(instance.on).toHaveBeenCalledWith('slide_changed', expect.any(Function));
+    });
+
+    it('configures onOpen callback', () => {
+      document.body.innerHTML = `
+        <div class="attachments">
+          <a href="http://localhost/attachments/42/photo.jpg" class="lightbox">photo.jpg</a>
+        </div>
+      `;
+      window.RedmineLightbox.initializeLightbox();
+      const config = GLightbox.mock.calls[0][0];
+
+      expect(typeof config.onOpen).toBe('function');
+      expect(typeof config.onClose).toBe('function');
+    });
+
+    it('writes ?lightbox=ID to URL when slide opens', () => {
+      document.body.innerHTML = `
+        <div class="attachments">
+          <a href="http://localhost/attachments/42/photo.jpg" class="lightbox">photo.jpg</a>
+        </div>
+      `;
+      window.RedmineLightbox.initializeLightbox();
+      const config = GLightbox.mock.calls[0][0];
+
+      // Simulate GLightbox calling onOpen
+      config.onOpen();
+
+      expect(window.location.search).toBe('?lightbox=42');
+    });
+
+    it('removes ?lightbox= from URL when slide closes', () => {
+      window.history.replaceState({}, '', 'http://localhost/issues/1?lightbox=42');
+      document.body.innerHTML = `
+        <div class="attachments">
+          <a href="http://localhost/attachments/42/photo.jpg" class="lightbox">photo.jpg</a>
+        </div>
+      `;
+      window.RedmineLightbox.initializeLightbox();
+      const config = GLightbox.mock.calls[0][0];
+
+      config.onClose();
+
+      expect(window.location.search).toBe('');
     });
   });
 

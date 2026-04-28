@@ -60,7 +60,6 @@ module RedmineLightbox
       if Redmine::Plugin.installed?('redmine_contacts') || Redmine::Plugin.installed?('redmine_servicedesk')
         targets['ContactsController'] = nil
       end
-      targets['ArticlesController'] = nil if Redmine::Plugin.installed? 'redmine_knowledgebase'
       targets['DbEntriesController'] = nil if Redmine::Plugin.installed? 'redmine_db'
       targets['DmsfController'] = nil if Redmine::Plugin.installed? 'redmine_dmsf'
 
