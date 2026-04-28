@@ -284,6 +284,25 @@
     caption.className = 'rl-thumbs-caption';
     panel.appendChild(caption);
 
+    const captionText = document.createElement('span');
+    captionText.className = 'rl-thumbs-caption-text';
+    caption.appendChild(captionText);
+
+    // Toggle button: collapses the strip and expands the slide media so PDFs,
+    // videos and large images can be viewed in full height.
+    const toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'rl-thumbs-toggle';
+    toggleBtn.title = 'Toggle full view';
+    toggleBtn.setAttribute('aria-label', 'Toggle full view');
+    toggleBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M3 3h7v2H5v5H3V3zm11 0h7v7h-2V5h-5V3zM3 14h2v5h5v2H3v-7zm16 0h2v7h-7v-2h5v-5z"></path></svg>';
+    toggleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      document.body.classList.toggle('rl-lightbox-collapsed');
+    });
+    caption.appendChild(toggleBtn);
+
     const scroll = document.createElement('div');
     scroll.className = 'rl-thumbs-scroll';
     panel.appendChild(scroll);
@@ -359,10 +378,10 @@
     const buttons = thumbPanel.querySelectorAll('.rl-thumb');
     buttons.forEach((btn, i) => btn.classList.toggle('active', i === index));
 
-    const captionEl = thumbPanel.querySelector('.rl-thumbs-caption');
-    if (captionEl) {
+    const captionTextEl = thumbPanel.querySelector('.rl-thumbs-caption-text');
+    if (captionTextEl) {
       const el = lastElements[index];
-      captionEl.textContent = (el && el.title) || '';
+      captionTextEl.textContent = (el && el.title) || '';
     }
 
     const active = buttons[index];
@@ -415,7 +434,7 @@
       },
       onClose: () => {
         isLightboxOpen = false;
-        document.body.classList.remove('rl-lightbox-thumbs');
+        document.body.classList.remove('rl-lightbox-thumbs', 'rl-lightbox-collapsed');
         if (!isClosingFromPopstate) {
           updateUrlParam(null, 'push');
         }

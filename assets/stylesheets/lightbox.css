@@ -66,16 +66,44 @@
 }
 
 .rl-thumbs-caption {
+  position: relative;
   flex: 0 0 auto;
-  padding: 4px 12px;
+  padding: 4px 36px;
   color: var(--rl-caption-color);
   font-size: var(--rl-thumb-font-size);
   text-align: center;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  min-height: 1em;
+}
+
+.rl-thumbs-caption-text {
+  display: inline-block;
+  max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-bottom: 1px solid rgb(255 255 255 / 10%);
-  min-height: 1em;
+  vertical-align: middle;
+}
+
+.rl-thumbs-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  background: transparent;
+  border: 0;
+  color: var(--rl-caption-color);
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 0;
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
+}
+
+.rl-thumbs-toggle:hover,
+.rl-thumbs-toggle:focus {
+  opacity: 1;
+  outline: none;
 }
 
 .rl-thumbs-scroll {
@@ -169,8 +197,32 @@ body.rl-lightbox-thumbs .gslide-image {
   justify-content: center;
 }
 
-body.rl-lightbox-thumbs .glightbox-container .gslide-iframe iframe {
+body.rl-lightbox-thumbs .glightbox-container .ginlined-content iframe {
   height: calc(100vh - 100px) !important;
+}
+
+/* User toggled full view via the thumb-strip button: hide the thumbs and
+ * caption text but keep the toggle button visible as a slim bar so the
+ * user can collapse back to the regular view. */
+body.rl-lightbox-collapsed .rl-thumbs-scroll,
+body.rl-lightbox-collapsed .rl-thumbs-caption-text {
+  display: none;
+}
+
+body.rl-lightbox-collapsed .rl-thumbs-caption {
+  border-bottom: 0;
+}
+
+body.rl-lightbox-collapsed.rl-lightbox-thumbs .glightbox-container {
+  padding-bottom: 26px;
+}
+
+body.rl-lightbox-collapsed.rl-lightbox-thumbs .gslide-image img {
+  max-height: calc(100vh - 26px) !important;
+}
+
+body.rl-lightbox-collapsed.rl-lightbox-thumbs .glightbox-container .ginlined-content iframe {
+  height: calc(100vh - 26px) !important;
 }
 
 /* When the current slide is zoomed (user clicked the image) we give the
