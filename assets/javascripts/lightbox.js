@@ -483,11 +483,7 @@
 
   // Fallback: Observe DOM changes for dynamically loaded content
   const observer = new MutationObserver((mutations) => {
-    const hasNewLinks = mutations.some((mutation) => {
-      return Array.from(mutation.addedNodes).some((node) => {
-        return node.nodeType === 1 && node.querySelector && node.querySelector('a.lightbox');
-      });
-    });
+    const hasNewLinks = mutations.some((mutation) => Array.from(mutation.addedNodes).some((node) => node.nodeType === 1 && node.querySelector && node.querySelector('a.lightbox')));
     if (hasNewLinks) {
       debouncedInit();
     }
