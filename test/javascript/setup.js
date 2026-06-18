@@ -7,7 +7,7 @@ globalThis.GLightbox = vi.fn(() => ({
   close: vi.fn(),
   on: vi.fn(),
   goToSlide: vi.fn(),
-  getActiveSlideIndex: vi.fn(() => 0)
+  getActiveSlideIndex: vi.fn(() => 0),
 }));
 
 // jQuery is not available in test environment

@@ -287,7 +287,7 @@ describe('RedmineLightbox', () => {
       const link = document.querySelector('a');
       const elements = window.RedmineLightbox.buildElements([link]);
       expect(elements).toHaveLength(1);
-      expect(elements[0]).toEqual({href: 'http://localhost/photo.jpg', type: 'image', title: 'photo.jpg'});
+      expect(elements[0]).toEqual({ href: 'http://localhost/photo.jpg', type: 'image', title: 'photo.jpg' });
     });
 
     it('creates iframe element for PDF link', () => {
@@ -405,7 +405,7 @@ describe('RedmineLightbox', () => {
         loop: true,
         zoomable: true,
         draggable: true,
-        closeOnOutsideClick: true
+        closeOnOutsideClick: true,
       }));
     });
 
@@ -431,7 +431,7 @@ describe('RedmineLightbox', () => {
 
     it('destroys previous instance before creating new one', () => {
       const mockDestroy = vi.fn();
-      GLightbox.mockReturnValue({destroy: mockDestroy, openAt: vi.fn()});
+      GLightbox.mockReturnValue({ destroy: mockDestroy, openAt: vi.fn() });
 
       document.body.innerHTML = `
         <div class="attachments">
@@ -453,7 +453,7 @@ describe('RedmineLightbox', () => {
   // They serve as safety net during refactoring (handler delegation, etc.)
   describe('click handling', () => {
     beforeEach(() => {
-      GLightbox.mockReturnValue({destroy: vi.fn(), openAt: vi.fn()});
+      GLightbox.mockReturnValue({ destroy: vi.fn(), openAt: vi.fn() });
     });
 
     it('clicking lightbox link opens at correct index', () => {
@@ -467,7 +467,7 @@ describe('RedmineLightbox', () => {
       const instance = GLightbox.mock.results[0].value;
 
       const link = document.querySelectorAll('a.lightbox')[1];
-      link.dispatchEvent(new Event('click', {cancelable: true, bubbles: true}));
+      link.dispatchEvent(new Event('click', { cancelable: true, bubbles: true }));
 
       expect(instance.openAt).toHaveBeenCalledWith(1);
     });
@@ -482,7 +482,7 @@ describe('RedmineLightbox', () => {
       const instance = GLightbox.mock.results[0].value;
 
       const link = document.querySelector('a.lightbox');
-      link.dispatchEvent(new Event('click', {cancelable: true, bubbles: true}));
+      link.dispatchEvent(new Event('click', { cancelable: true, bubbles: true }));
 
       expect(instance.openAt).toHaveBeenCalledWith(0);
     });
@@ -496,7 +496,7 @@ describe('RedmineLightbox', () => {
       window.RedmineLightbox.initializeLightbox();
 
       const link = document.querySelector('a.lightbox');
-      const event = new Event('click', {cancelable: true, bubbles: true});
+      const event = new Event('click', { cancelable: true, bubbles: true });
       link.dispatchEvent(event);
 
       expect(event.defaultPrevented).toBe(true);
@@ -515,7 +515,7 @@ describe('RedmineLightbox', () => {
       const instance = GLightbox.mock.results[0].value;
 
       const dup = document.getElementById('dup');
-      dup.dispatchEvent(new Event('click', {cancelable: true, bubbles: true}));
+      dup.dispatchEvent(new Event('click', { cancelable: true, bubbles: true }));
 
       expect(instance.openAt).toHaveBeenCalledWith(0);
     });
@@ -531,7 +531,7 @@ describe('RedmineLightbox', () => {
       const instance = GLightbox.mock.results[0].value;
 
       const dl = document.getElementById('dl');
-      dl.dispatchEvent(new Event('click', {cancelable: true, bubbles: true}));
+      dl.dispatchEvent(new Event('click', { cancelable: true, bubbles: true }));
 
       expect(instance.openAt).not.toHaveBeenCalled();
     });
@@ -547,7 +547,7 @@ describe('RedmineLightbox', () => {
       const instance = GLightbox.mock.results[0].value;
 
       const other = document.getElementById('other');
-      other.dispatchEvent(new Event('click', {cancelable: true, bubbles: true}));
+      other.dispatchEvent(new Event('click', { cancelable: true, bubbles: true }));
 
       expect(instance.openAt).not.toHaveBeenCalled();
     });
@@ -564,7 +564,7 @@ describe('RedmineLightbox', () => {
       const instance = GLightbox.mock.results[0].value;
 
       const img = document.getElementById('thumb');
-      img.dispatchEvent(new Event('click', {cancelable: true, bubbles: true}));
+      img.dispatchEvent(new Event('click', { cancelable: true, bubbles: true }));
 
       expect(instance.openAt).toHaveBeenCalledWith(0);
     });
@@ -575,7 +575,7 @@ describe('RedmineLightbox', () => {
       const openAtCalls = [];
       GLightbox.mockImplementation(() => ({
         destroy: vi.fn(),
-        openAt: vi.fn((idx) => openAtCalls.push(idx))
+        openAt: vi.fn((idx) => openAtCalls.push(idx)),
       }));
 
       document.body.innerHTML = `
@@ -589,7 +589,7 @@ describe('RedmineLightbox', () => {
       window.RedmineLightbox.initializeLightbox();
 
       const link = document.querySelector('a.lightbox');
-      link.dispatchEvent(new Event('click', {cancelable: true, bubbles: true}));
+      link.dispatchEvent(new Event('click', { cancelable: true, bubbles: true }));
 
       expect(openAtCalls).toHaveLength(1);
       expect(openAtCalls[0]).toBe(0);
@@ -678,7 +678,7 @@ describe('RedmineLightbox', () => {
         close: vi.fn(),
         on: vi.fn(),
         goToSlide: vi.fn(),
-        getActiveSlideIndex: vi.fn(() => 0)
+        getActiveSlideIndex: vi.fn(() => 0),
       }));
     });
 

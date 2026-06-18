@@ -1,6 +1,6 @@
 /* global GLightbox */
 
-(function() {
+(function () {
   'use strict';
 
   const IMAGE_EXTENSION_REGEX = /\.(png|jpe?g|jpe|gif|bmp|tiff?|webp)$/i;
@@ -10,7 +10,7 @@
   const URL_PARAM = 'lightbox';
   const VIDEO_MIME_TYPES = {
     mp4: 'video/mp4',
-    webm: 'video/webm'
+    webm: 'video/webm',
   };
 
   const IMAGE_SELECTORS = [
@@ -18,25 +18,25 @@
     'div.attachments a.lightbox-preview',
     'table.list.files a.icon-magnifier:not([href$=".pdf"])',
     '.controller-dmsf #browser a.lightbox',
-    'table.list.files td.filename a.lightbox:not(.pdf)'
+    'table.list.files td.filename a.lightbox:not(.pdf)',
   ];
 
   const PDF_SELECTORS = [
     'div.attachments a.pdf',
     'table.list.files td.filename a.lightbox.pdf',
-    'table.list.files a.icon-magnifier[href$=".pdf"]'
+    'table.list.files a.icon-magnifier[href$=".pdf"]',
   ];
 
   const VIDEO_SELECTORS = [
     'div.attachments a.lightbox.video',
-    'table.list.files td.filename a.lightbox.video'
+    'table.list.files td.filename a.lightbox.video',
   ];
 
   const DYNAMIC_LINK_SELECTORS = [
     'div.journal ul.journal-details a:not(.icon-download)',
     'div.journal div.thumbnails a',
     'div.attachments div.thumbnails a',
-    'div.wiki a.thumbnail'
+    'div.wiki a.thumbnail',
   ];
 
   let lightboxInstance = null;
@@ -101,7 +101,7 @@
     const seenHrefs = new Set();
 
     function addLink(link) {
-      const {href} = link;
+      const { href } = link;
       if (!seenHrefs.has(href)) {
         seenHrefs.add(href);
         allLinks.push(link);
@@ -153,14 +153,14 @@
   // Build GLightbox elements array from collected links
   function buildElements(links) {
     return links.map((link) => {
-      const {href} = link;
+      const { href } = link;
       const title = extractCaption(link);
       if (PDF_EXTENSION_REGEX.test(href)) {
         return {
           content: `<iframe src="${href}" style="width: 90vw; height: 90vh; border: none;"></iframe>`,
           width: '90vw',
           height: '90vh',
-          title
+          title,
         };
       }
       const videoMatch = href.match(VIDEO_EXTENSION_REGEX);
@@ -171,10 +171,10 @@
           content: `<video controls preload="metadata" style="width: 90vw; height: 90vh; max-width: 90vw; max-height: 90vh;"><source src="${href}" type="${mime}"></video>`,
           width: '90vw',
           height: '90vh',
-          title
+          title,
         };
       }
-      return {href, type: 'image', title};
+      return { href, type: 'image', title };
     });
   }
 
@@ -211,7 +211,7 @@
     idIndexMap = new Map();
     indexIdMap = new Map();
     links.forEach((link, index) => {
-      const {href} = link;
+      const { href } = link;
       if (!hrefIndexMap.has(href)) {
         hrefIndexMap.set(href, index);
       }
@@ -320,7 +320,7 @@
       btn.title = el.title || '';
       btn.setAttribute('aria-label', el.title || `Slide ${index + 1}`);
 
-      const {href} = link;
+      const { href } = link;
       const id = parseAttachmentId(href);
 
       if (PDF_EXTENSION_REGEX.test(href)) {
@@ -439,7 +439,7 @@
           updateUrlParam(null, 'push');
         }
         isClosingFromPopstate = false;
-      }
+      },
     });
 
     if (typeof lightboxInstance.on === 'function') {
@@ -463,7 +463,7 @@
   // Debounce helper (Punkt 3)
   function debounce(fn, delay) {
     let timer = null;
-    return function() {
+    return function () {
       if (timer) { clearTimeout(timer); }
       timer = setTimeout(fn, delay);
     };
@@ -499,7 +499,7 @@
     containers.forEach((id) => {
       const container = document.getElementById(id);
       if (container) {
-        observer.observe(container, {childList: true, subtree: true});
+        observer.observe(container, { childList: true, subtree: true });
       }
     });
   });
@@ -523,6 +523,6 @@
       isClosingFromPopstate = false;
       initialUrlChecked = false;
       destroyThumbnailPanel();
-    }
+    },
   };
 })();
