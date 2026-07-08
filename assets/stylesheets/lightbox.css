@@ -8,10 +8,7 @@
 
 /* GLightbox custom overrides for Redmine integration */
 .glightbox-container {
-  --rl-caption-color: #fff;
-  --rl-thumb-bg: rgb(0 0 0 / 75%);
-  --rl-thumb-border: rgb(255 255 255 / 80%);
-  --rl-thumb-icon: rgb(255 255 255 / 90%);
+  --rl-caption-color: var(--oc-white);
   --rl-thumb-font-size: 0.75rem;
 }
 
@@ -45,7 +42,7 @@
 .glightbox-container video {
   width: 100%;
   height: 100%;
-  background: #000;
+  background: var(--oc-black);
   display: block;
 }
 
@@ -57,8 +54,8 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  background: var(--rl-thumb-bg);
-  border-top: 1px solid rgb(255 255 255 / 10%);
+  background: rgb(var(--oc-black-rgb), 0.75);
+  border-top: 1px solid rgb(var(--oc-white-rgb), 0.1);
   z-index: 99999;
   display: flex;
   flex-direction: column;
@@ -72,7 +69,7 @@
   color: var(--rl-caption-color);
   font-size: var(--rl-thumb-font-size);
   text-align: center;
-  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  border-bottom: 1px solid rgb(var(--oc-white-rgb), 0.1);
   min-height: 1em;
 }
 
@@ -127,14 +124,14 @@
   width: 80px;
   height: 60px;
   padding: 0;
-  background: rgb(255 255 255 / 10%);
+  background: rgb(var(--oc-white-rgb), 0.1);
   border: 2px solid transparent;
   border-radius: 2px;
   cursor: pointer;
   overflow: hidden;
   opacity: 0.7;
   transition: opacity 0.15s ease, border-color 0.15s ease;
-  color: var(--rl-thumb-icon);
+  color: rgb(var(--oc-white-rgb), 0.9);
   font-size: var(--rl-thumb-font-size);
   font-weight: bold;
   display: flex;
@@ -162,7 +159,7 @@
 
 .rl-thumb.active {
   opacity: 1;
-  border-color: var(--rl-thumb-border);
+  border-color: rgb(var(--oc-white-rgb), 0.8);
 }
 
 /* When a thumbnail strip is rendered, the filename is shown in the strip
