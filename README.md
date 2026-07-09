@@ -3,18 +3,18 @@ Redmine Lightbox
 
 [![Run Linters](https://github.com/AlphaNodes/redmine_lightbox/workflows/Run%20Linters/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions/workflows/linters.yml) [![Run Tests](https://github.com/AlphaNodes/redmine_lightbox/workflows/Tests/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions/workflows/tests.yml) [![Vitest](https://github.com/AlphaNodes/redmine_lightbox/workflows/Vitest/badge.svg)](https://github.com/AlphaNodes/redmine_lightbox/actions/workflows/vitest.yml)
 
-This plugin lets you preview image (JPG, GIF, PNG, BMP, TIFF, WebP) and PDF attachments in a lightbox based on [GLightbox](https://github.com/biati-digital/glightbox).
+This plugin lets you preview image (JPG, GIF, PNG, BMP, TIFF, WebP, AVIF, SVG) and PDF attachments in a lightbox based on [GLightbox](https://github.com/biati-digital/glightbox).
 
 Requirements
 ------------
 
-- Redmine 6.1 or higher
+- Redmine 7.0 or higher
 - Ruby 3.2 or higher
 
 Installation and Setup
 ----------------------
 
-For Redmine 6.1 or higher
+For Redmine 7.0 or higher
 -------------------------
 
 - Clone this repo into your **redmine_root/plugins/** folder
@@ -28,10 +28,10 @@ For Redmine 6.1 or higher
 
 - Restart Redmine
 
-For Redmine versions before 6.1
---------------------------------
+For Redmine 6.1
+---------------
 
-If you are using Redmine 5.0 - 6.0, install the stable branch which uses Fancybox 3.5.7:
+If you are using Redmine 6.1, install the stable branch (v2.0.1):
 
 ```shell
 cd redmine

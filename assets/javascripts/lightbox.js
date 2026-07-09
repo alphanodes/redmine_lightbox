@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  const IMAGE_EXTENSION_REGEX = /\.(png|jpe?g|jpe|gif|bmp|tiff?|webp)$/i;
+  const IMAGE_EXTENSION_REGEX = /\.(png|jpe?g|jpe|gif|bmp|tiff?|webp|avif|svg)$/i;
   const PDF_EXTENSION_REGEX = /\.pdf$/i;
   const VIDEO_EXTENSION_REGEX = /\.(mp4|webm)$/i;
   const ATTACHMENT_ID_REGEX = /\/attachments\/(?:(?:download|thumbnail)\/)?(\d+)(?:\/|$)/;

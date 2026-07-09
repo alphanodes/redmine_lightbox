@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RedmineLightbox
-  VERSION = '2.0.0'
+  VERSION = '3.0.0'
   GLIGHTBOX_VERSION = '3.3.1'
 
   include RedminePluginKit::PluginBase

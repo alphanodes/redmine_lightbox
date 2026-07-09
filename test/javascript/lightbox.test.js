@@ -155,6 +155,42 @@ describe('RedmineLightbox', () => {
       expect(links).toHaveLength(1);
     });
 
+    it('finds journal AVIF image links', () => {
+      document.body.innerHTML = `
+        <div class="journal">
+          <ul class="journal-details">
+            <li><a href="http://localhost/attachments/1/photo.avif">photo.avif</a></li>
+          </ul>
+        </div>
+      `;
+      const links = window.RedmineLightbox.collectAllLinks();
+      expect(links).toHaveLength(1);
+    });
+
+    it('finds journal SVG image links', () => {
+      document.body.innerHTML = `
+        <div class="journal">
+          <ul class="journal-details">
+            <li><a href="http://localhost/attachments/1/diagram.svg">diagram.svg</a></li>
+          </ul>
+        </div>
+      `;
+      const links = window.RedmineLightbox.collectAllLinks();
+      expect(links).toHaveLength(1);
+    });
+
+    it('finds wiki SVG thumbnail links', () => {
+      document.body.innerHTML = `
+        <div class="wiki">
+          <a href="http://localhost/attachments/1/chart.svg" class="thumbnail">
+            <img src="thumb.svg">
+          </a>
+        </div>
+      `;
+      const links = window.RedmineLightbox.collectAllLinks();
+      expect(links).toHaveLength(1);
+    });
+
     it('finds attachment video link with lightbox.video class', () => {
       document.body.innerHTML = `
         <div class="attachments">
