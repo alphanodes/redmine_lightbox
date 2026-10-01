@@ -150,11 +150,22 @@
     return allLinks;
   }
 
+  // GLightbox writes the title as html into the slide, but the caption is
+  // plain text: file name and description are typed by the uploader.
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   // Build GLightbox elements array from collected links
   function buildElements(links) {
     return links.map((link) => {
       const { href } = link;
-      const title = extractCaption(link);
+      const title = escapeHtml(extractCaption(link));
       if (PDF_EXTENSION_REGEX.test(href)) {
         return {
           content: `<iframe src="${href}" style="width: 90vw; height: 90vh; border: none;"></iframe>`,

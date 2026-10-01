@@ -693,6 +693,14 @@ describe('RedmineLightbox', () => {
       expect(elements[0].title).toBe('photo.jpg');
     });
 
+    it('escapes markup in the caption', () => {
+      document.body.innerHTML = '<a href="http://localhost/attachments/1/photo.jpg">photo</a>';
+      const link = document.querySelector('a');
+      link.dataset.caption = 'photo.jpg - <img src=x onerror="alert(1)">';
+      const elements = window.RedmineLightbox.buildElements([link]);
+      expect(elements[0].title).toBe('photo.jpg - &lt;img src=x onerror=&quot;alert(1)&quot;&gt;');
+    });
+
     it('sets title for PDF elements', () => {
       document.body.innerHTML = '<a href="http://localhost/attachments/1/manual.pdf" data-caption="User Manual">pdf</a>';
       const link = document.querySelector('a');
