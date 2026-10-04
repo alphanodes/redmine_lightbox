@@ -161,6 +161,14 @@
       .replace(/'/g, '&#39;');
   }
 
+  // Redmine 7.1+ sends PDFs inline only on explicit request (https://www.redmine.org/issues/44400), otherwise
+  // the iframe would trigger a download. Older versions ignore the parameter.
+  function pdfInlineUrl(href) {
+    const url = new URL(href, window.location.href);
+    url.searchParams.set('disposition', 'inline');
+    return url.toString();
+  }
+
   // Build GLightbox elements array from collected links
   function buildElements(links) {
     return links.map((link) => {
@@ -168,7 +176,7 @@
       const title = escapeHtml(extractCaption(link));
       if (PDF_EXTENSION_REGEX.test(href)) {
         return {
-          content: `<iframe src="${href}" style="width: 90vw; height: 90vh; border: none;"></iframe>`,
+          content: `<iframe src="${pdfInlineUrl(href)}" style="width: 90vw; height: 90vh; border: none;"></iframe>`,
           width: '90vw',
           height: '90vh',
           title,

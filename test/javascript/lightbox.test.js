@@ -337,6 +337,13 @@ describe('RedmineLightbox', () => {
       expect(elements[0].height).toBe('90vh');
     });
 
+    it('requests inline disposition for the PDF iframe', () => {
+      document.body.innerHTML = '<a href="http://localhost/attachments/download/2/doc.pdf">doc</a>';
+      const link = document.querySelector('a');
+      const elements = window.RedmineLightbox.buildElements([link]);
+      expect(elements[0].content).toContain('src="http://localhost/attachments/download/2/doc.pdf?disposition=inline"');
+    });
+
     it('handles mixed images and PDFs', () => {
       document.body.innerHTML = `
         <a id="img" href="http://localhost/photo.jpg">photo</a>
