@@ -213,31 +213,21 @@ describe('RedmineLightbox', () => {
       expect(links).toHaveLength(1);
     });
 
-    it('rewrites avatar attachment URLs to thumbnails', () => {
+    it('finds image links marked by the lightbox-image class whatever their URL', () => {
       document.body.innerHTML = `
-        <a href="http://localhost/attachments/42/avatar.jpg">
+        <a href="http://localhost/people/7/photo/0123456789abcdef/800?full=1" class="lightbox-image">
           <img class="avatar" src="thumb.jpg">
         </a>
       `;
       const links = window.RedmineLightbox.collectAllLinks();
       expect(links).toHaveLength(1);
-      expect(links[0].href).toContain('/attachments/thumbnail/42/400');
+      expect(links[0].href).toBe('http://localhost/people/7/photo/0123456789abcdef/800?full=1');
     });
 
-    it('does not rewrite avatar links without attachment ID pattern', () => {
-      document.body.innerHTML = `
-        <a href="http://localhost/other/avatar.jpg">
-          <img class="avatar" src="thumb.jpg">
-        </a>
-      `;
-      const links = window.RedmineLightbox.collectAllLinks();
-      expect(links).toHaveLength(0);
-    });
-
-    it('ignores links without image avatar', () => {
+    it('leaves unmarked avatar links alone', () => {
       document.body.innerHTML = `
         <a href="http://localhost/attachments/42/avatar.jpg">
-          <img src="thumb.jpg">
+          <img class="avatar" src="thumb.jpg">
         </a>
       `;
       const links = window.RedmineLightbox.collectAllLinks();

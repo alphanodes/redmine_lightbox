@@ -14,6 +14,8 @@
   };
 
   const IMAGE_SELECTORS = [
+    // Any link to an image, whatever its URL looks like
+    'a.lightbox-image',
     'div.attachments a.lightbox:not(.pdf)',
     'div.attachments a.lightbox-preview',
     'table.list.files a.icon-magnifier:not([href$=".pdf"])',
@@ -121,20 +123,6 @@
           addLink(link);
         }
       });
-    });
-
-    // Avatar links (contact photos, user avatars) that point to image attachments
-    document.querySelectorAll('a[href*="/attachments/"]').forEach((link) => {
-      const img = link.querySelector('img.avatar');
-      const href = link.getAttribute('href');
-      if (img && href && IMAGE_EXTENSION_REGEX.test(href)) {
-        // Convert /attachments/{id}/{filename} to /attachments/thumbnail/{id}/400
-        const thumbnailMatch = href.match(/\/attachments\/(\d+)\//);
-        if (thumbnailMatch) {
-          link.href = `/attachments/thumbnail/${thumbnailMatch[1]}/400`;
-        }
-        addLink(link);
-      }
     });
 
     // Static PDF selectors
