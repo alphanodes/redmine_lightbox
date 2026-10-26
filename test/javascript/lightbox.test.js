@@ -81,6 +81,18 @@ describe('RedmineLightbox', () => {
       expect(links).toHaveLength(1);
     });
 
+    it('finds wiki thumbnail macro links to the attachment page', () => {
+      document.body.innerHTML = `
+        <div class="wiki">
+          <a href="http://localhost/attachments/42" class="thumbnail" title="diagram.png">
+            <img src="http://localhost/attachments/thumbnail/42/200" alt="diagram.png">
+          </a>
+        </div>
+      `;
+      const links = window.RedmineLightbox.collectAllLinks();
+      expect(links).toHaveLength(1);
+    });
+
     it('finds journal detail image links', () => {
       document.body.innerHTML = `
         <div class="journal">
@@ -327,6 +339,13 @@ describe('RedmineLightbox', () => {
       expect(elements[0].height).toBe('90vh');
     });
 
+    it('loads the raw image for a link to the attachment page', () => {
+      document.body.innerHTML = '<div class="wiki"><a href="http://localhost/attachments/42" class="thumbnail" title="diagram.png">x</a></div>';
+      const link = document.querySelector('a');
+      const elements = window.RedmineLightbox.buildElements([link]);
+      expect(elements[0]).toEqual({ href: 'http://localhost/attachments/download/42', type: 'image', title: 'diagram.png' });
+    });
+
     it('requests inline disposition for the PDF iframe', () => {
       document.body.innerHTML = '<a href="http://localhost/attachments/download/2/doc.pdf">doc</a>';
       const link = document.querySelector('a');
@@ -505,6 +524,26 @@ describe('RedmineLightbox', () => {
       expect(instance.openAt).toHaveBeenCalledWith(1);
     });
 
+    it('opens the listed slide for a thumbnail macro of an attachment that is already in the lightbox', () => {
+      document.body.innerHTML = `
+        <div class="wiki"><a href="http://localhost/attachments/7" class="thumbnail" title="b.jpg"><img alt="b.jpg"></a></div>
+        <div class="attachments">
+          <a href="http://localhost/attachments/download/6/a.jpg" class="lightbox">A</a>
+          <a href="http://localhost/attachments/download/7/b.jpg" class="lightbox">B</a>
+        </div>
+      `;
+      window.RedmineLightbox.initializeLightbox();
+      const instance = GLightbox.mock.results[0].value;
+
+      expect(GLightbox.mock.calls[0][0].elements).toHaveLength(2);
+
+      const event = new Event('click', { cancelable: true, bubbles: true });
+      document.querySelector('a.thumbnail').dispatchEvent(event);
+
+      expect(instance.openAt).toHaveBeenCalledWith(1);
+      expect(event.defaultPrevented).toBe(true);
+    });
+
     it('clicking first lightbox link opens at index 0', () => {
       document.body.innerHTML = `
         <div class="attachments">
@@ -663,6 +702,12 @@ describe('RedmineLightbox', () => {
 
     it('falls back to filename derived from URL', () => {
       document.body.innerHTML = '<a href="http://localhost/attachments/1/diagram.png">x</a>';
+      const link = document.querySelector('a');
+      expect(window.RedmineLightbox.extractCaption(link)).toBe('diagram.png');
+    });
+
+    it('uses the title for a link to the attachment page, which has no filename in its URL', () => {
+      document.body.innerHTML = '<a href="http://localhost/attachments/42" title="diagram.png">x</a>';
       const link = document.querySelector('a');
       expect(window.RedmineLightbox.extractCaption(link)).toBe('diagram.png');
     });

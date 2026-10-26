@@ -7,6 +7,8 @@
   const PDF_EXTENSION_REGEX = /\.pdf$/i;
   const VIDEO_EXTENSION_REGEX = /\.(mp4|webm)$/i;
   const ATTACHMENT_ID_REGEX = /\/attachments\/(?:(?:download|thumbnail)\/)?(\d+)(?:\/|$)/;
+  const ATTACHMENT_PAGE_REGEX = /\/attachments\/(\d+)$/;
+  const THUMBNAIL_MACRO_SELECTOR = 'div.wiki a.thumbnail';
   const URL_PARAM = 'lightbox';
   const VIDEO_MIME_TYPES = {
     mp4: 'video/mp4',
@@ -38,7 +40,7 @@
     'div.journal ul.journal-details a:not(.icon-download)',
     'div.journal div.thumbnails a',
     'div.attachments div.thumbnails a',
-    'div.wiki a.thumbnail',
+    THUMBNAIL_MACRO_SELECTOR,
   ];
 
   let lightboxInstance = null;
@@ -64,10 +66,15 @@
     return match ? Number.parseInt(match[1], 10) : null;
   }
 
+  function isAttachmentPageLink(link) {
+    return ATTACHMENT_PAGE_REGEX.test(link.href);
+  }
+
   // Best-effort caption: prefer data-caption from LightboxHelper,
   // fall back to filename derived from URL path.
   function extractCaption(link) {
     if (link.dataset && link.dataset.caption) { return link.dataset.caption; }
+    if (link.title && isAttachmentPageLink(link)) { return link.title; }
     try {
       const url = new URL(link.href);
       return decodeURIComponent(url.pathname.split('/').pop()) || '';
@@ -121,6 +128,9 @@
         const href = link.getAttribute('href');
         if (href && (IMAGE_EXTENSION_REGEX.test(href) || PDF_EXTENSION_REGEX.test(href) || VIDEO_EXTENSION_REGEX.test(href))) {
           addLink(link);
+        } else if (selector === THUMBNAIL_MACRO_SELECTOR && isAttachmentPageLink(link)) {
+          const id = parseAttachmentId(link.href);
+          if (!allLinks.some((other) => parseAttachmentId(other.href) === id)) { addLink(link); }
         }
       });
     });
@@ -136,6 +146,11 @@
     });
 
     return allLinks;
+  }
+
+  function collectAliasLinks(links) {
+    return Array.from(document.querySelectorAll(THUMBNAIL_MACRO_SELECTOR))
+      .filter((link) => isAttachmentPageLink(link) && !links.includes(link));
   }
 
   // GLightbox writes the title as html into the slide, but the caption is
@@ -181,7 +196,7 @@
           title,
         };
       }
-      return { href, type: 'image', title };
+      return { href: href.replace(ATTACHMENT_PAGE_REGEX, '/attachments/download/$1'), type: 'image', title };
     });
   }
 
@@ -226,6 +241,12 @@
       if (id !== null && !idIndexMap.has(id)) {
         idIndexMap.set(id, index);
         indexIdMap.set(index, id);
+      }
+    });
+    collectAliasLinks(links).forEach((link) => {
+      const index = idIndexMap.get(parseAttachmentId(link.href));
+      if (index !== undefined && !hrefIndexMap.has(link.href)) {
+        hrefIndexMap.set(link.href, index);
       }
     });
   }
@@ -405,7 +426,15 @@
     lastElements = [];
   }
 
+  let linkSignature = '';
+
+  function currentLinkSignature() {
+    const links = collectAllLinks();
+    return links.concat(collectAliasLinks(links)).map((link) => link.href).join('\n');
+  }
+
   function initializeLightbox() {
+    linkSignature = currentLinkSignature();
     const allLinks = collectAllLinks();
     if (allLinks.length === 0) { return; }
 
@@ -484,8 +513,13 @@
   // Re-initialize after AJAX / tab changes via debounced handler (Punkt 3 + 4)
   document.addEventListener('ajax:complete', debouncedInit);
 
+  function reinitIfLinksChanged() {
+    if (currentLinkSignature() !== linkSignature) { debouncedInit(); }
+  }
+
   if (typeof jQuery !== 'undefined') {
     jQuery(document).on('tabsactivate', debouncedInit);
+    jQuery(document).on('ajaxComplete', reinitIfLinksChanged);
   }
 
   // Fallback: Observe DOM changes for dynamically loaded content
@@ -518,6 +552,7 @@
     buildThumbnailPanel,
     _reset() {
       lightboxInstance = null;
+      linkSignature = '';
       hrefIndexMap = new Map();
       idIndexMap = new Map();
       indexIdMap = new Map();
